@@ -1,0 +1,46 @@
+{
+    "1": {
+        "modeSchedule": [
+            {"Scatter": 7},
+            {"Chase": 20},
+            {"Scatter": 7},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": -1}
+        ],
+        "frightenedDuration": 6,
+        "inPenAfterEatenDuration": 6
+    },
+
+    "2": {
+        "modeSchedule": [
+            {"Scatter": 7},
+            {"Chase": 20},
+            {"Scatter": 7},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": 1033},
+            {"Scatter": 0},
+            {"Chase": -1}
+        ],
+        "frightenedDuration": 3,
+        "inPenAfterEatenDuration": 3
+    },
+
+    "3": {
+        "modeSchedule": [
+            {"Scatter": 5},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": 1037},
+            {"Scatter": 0},
+            {"Chase": -1}
+        ],
+        "frightenedDuration": 1,
+        "inPenAfterEatenDuration": 1
+    }
+}

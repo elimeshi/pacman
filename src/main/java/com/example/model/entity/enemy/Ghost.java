@@ -1,0 +1,93 @@
+package com.example.model.entity.enemy;
+
+import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
+import com.example.model.entity.Entity;
+import com.example.utils.*;
+
+public class Ghost extends Entity {
+
+    public GhostMode mode;
+    public boolean frightenedIsOver = false;
+    public int spriteIdx = 0;
+    public int spriteCounter = 0;
+    public int frightenedCounter = 0;
+    public int frightenedSpriteIdx = 0;
+    public int frightenedSpriteCounter = 0;
+    public Point2D.Double regenPos; // regeneration position in pixels
+    public AI ai;
+    public BufferedImage sprite, eyes;
+
+    public Ghost(double x, double y, double speed) {
+        super(x, y, speed);
+    }
+
+    public void setAI(AI ai) {this.ai = ai;}
+
+    public void updateFrightenedSpriteIdx() {
+        if (!frightenedIsOver) return; 
+        if (++frightenedSpriteCounter == 30) {
+            frightenedSpriteCounter = 0;
+            frightenedSpriteIdx = frightenedSpriteIdx == 0 ? 1 : 0;
+        }
+    }
+
+    public void updateSpriteIdx() {
+        if (++spriteCounter == 10) {
+            spriteCounter = 0;
+            spriteIdx = spriteIdx == 0 ? 1 : 0;
+        }
+    }
+
+    public void setSprite() {
+        updateSpriteIdx();
+
+        String spritePath;
+        if (mode == GhostMode.Frightened) {
+            frightenedCounter++;
+            updateFrightenedSpriteIdx();
+            spritePath = "ghosts/frightened" + frightenedSpriteIdx + spriteIdx + ".png";
+        } else {
+            spritePath = "ghosts/" + getClass().getSimpleName() + spriteIdx + ".png";
+        }
+
+        sprite = AssetLoader.loadSprite(spritePath);
+        eyes = AssetLoader.loadSprite("ghost eyes/" + direction + ".png");
+    }
+
+    public void setFrightened() {
+        mode = GhostMode.Frightened;
+        frightenedSpriteCounter = 30;
+        frightenedSpriteIdx = 0;
+        frightenedCounter = 0;
+        frightenedIsOver = false;
+    }
+
+    public Point2D.Double targetTile() { return new Point2D.Double(0, 0); }
+
+    public void setMode(GhostMode newMode) {
+        mode = newMode;
+    }
+
+    public void setDirection(int newDirection) {
+        direction = newDirection;
+        nextDirection = newDirection;
+    }
+
+    public void setSpeed(double newSpeed) {
+        speed = newSpeed;
+    } 
+
+    public void update() {
+        setSprite();
+        nextDirection = ai.getDirection(this);
+        super.update(); // update direction and update position
+    }
+
+    public void draw(Graphics2D g2) {
+        
+    }
+    
+}

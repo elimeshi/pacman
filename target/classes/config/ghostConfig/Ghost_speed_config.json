@@ -1,0 +1,10 @@
+{
+    "speedPerMode": {
+        "CHASE": 0.75,
+        "SCATTER": 0.75,
+        "FRIGHTENED": 0.5,
+        "EATEN": 1.5,
+        "SPAWN": 0.75,
+        "TUNNEL": 0.4
+    } 
+}

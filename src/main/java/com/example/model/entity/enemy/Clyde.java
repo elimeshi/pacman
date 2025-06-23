@@ -1,0 +1,20 @@
+package com.example.model.entity.enemy;
+
+import java.awt.geom.Point2D;
+
+public class Clyde extends Ghost {
+
+    public Clyde(double x, double y, double speed) {
+        super(x, y, speed);
+        mode = GhostMode.InPen;
+        direction = -90;
+        nextDirection = -90;
+        regenPos = new Point2D.Double(15.5, 14);
+    }
+
+    public Point2D.Double targetTile() {
+        Point2D.Double pacmanTile = ai.getPacmanTile();
+        if (mode == GhostMode.Chase && pacmanTile.distance(x, y) < 8) return pacmanTile;
+        return new Point2D.Double(0, 31);
+    }
+}
