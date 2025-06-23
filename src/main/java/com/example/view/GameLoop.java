@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import com.example.config.GameConfig;
-import com.example.controller.EntityController;
 import com.example.controller.GameController;
 import com.example.controller.KeyHandler;
 import com.example.model.Speeds;
@@ -23,7 +22,6 @@ public class GameLoop {
     int scale;
     Pacman pacman;
     Ghost[] ghosts;
-    EntityController[] controllers;
     GameController controller;
     AI ai;
 
@@ -44,11 +42,9 @@ public class GameLoop {
             new Inky  (11.5, 14, Speeds.ghostNormal),
             new Clyde (15.5, 14, Speeds.ghostNormal)
         };
-        controller = new GameController(pacman, (Blinky) ghosts[0], (Pinky) ghosts[1], (Inky) ghosts[2], (Clyde) ghosts[3], tileMap, cfg.FPS);
-        controllers = new EntityController[]{
-            
-        };
         ai = new AI(pacman, (Blinky) ghosts[0], tileMap);
+        controller = new GameController(pacman, (Blinky) ghosts[0], (Pinky) ghosts[1], (Inky) ghosts[2], (Clyde) ghosts[3], ai, tileMap, cfg.FPS);
+        
         for (Ghost g : ghosts) g.setAI(ai);
     }
 
@@ -60,9 +56,6 @@ public class GameLoop {
             return;
         }
 
-        pacman.update();
-        for (Ghost ghost : ghosts) ghost.update();
-        for (EntityController c : controllers) c.update();
         controller.update();
     }
 

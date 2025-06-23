@@ -9,9 +9,4 @@ public class Blinky extends Ghost {
         mode = GhostMode.Scatter;
         regenPos = new Point2D.Double(13.5, 14);
     }
-
-    public Point2D.Double targetTile() {
-        if (mode == GhostMode.Chase) return ai.getPacmanTile();
-        return new Point2D.Double(25, -4);
-    }
 }

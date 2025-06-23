@@ -11,13 +11,13 @@ public class GameController {
     public GhostController[] ghostControllers;
     public TileType pacmanTile;
 
-    public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, TileMap tileMap, int FPS) {
+    public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, TileMap tileMap, int FPS) {
         pacmanController = new PacmanController(pacman, tileMap);
         ghostControllers = new GhostController[]{
-            new BlinkyController(blinky, pacman, FPS, tileMap),
-            new PinkyController(pinky, pacman, FPS, tileMap),
-            new InkyController(inky, pacman, FPS, tileMap),
-            new ClydeController(clyde, pacman, FPS, tileMap),
+            new BlinkyController(blinky, pacman, ai, FPS, tileMap),
+            new PinkyController(pinky, pacman, ai, FPS, tileMap),
+            new InkyController(inky, pacman, ai, FPS, tileMap),
+            new ClydeController(clyde, pacman, ai, FPS, tileMap),
         };
     }
 

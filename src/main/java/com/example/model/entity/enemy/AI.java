@@ -130,7 +130,7 @@ public class AI {
         return 90;
     }
 
-    public int getDirection(Ghost ghost) {
+    public int getDirection(Ghost ghost, Point2D.Double target) {
         tileX = ghost.x;
         tileY = ghost.y;
         direction = ghost.direction;
@@ -140,9 +140,10 @@ public class AI {
         switch (mode) {
             case Chase:
             case Scatter:
-                Point2D.Double target = ghost.targetTile();
+                // Point2D.Double target = ghost.targetTile();
                 return filterByTarget(directions, target)[0];
-            case Frightened: 
+            case Frightened:
+                if (ghost.isInPen()) return directionInPen(ghost);
                 Random r = new Random(); 
                 return directions[r.nextInt(directions.length)];
             case Eaten:

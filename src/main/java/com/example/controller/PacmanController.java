@@ -30,6 +30,7 @@ public class PacmanController extends EntityController {
     }
 
     public void update() {
+        pacman.updateMouth();
         super.update();
     }
 }

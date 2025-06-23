@@ -1,8 +1,10 @@
 package com.example.controller;
 
+import java.awt.geom.Point2D;
 import java.util.Queue;
 
 import com.example.model.entity.Pacman;
+import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
@@ -11,6 +13,7 @@ public abstract class GhostController extends EntityController {
 
     Ghost ghost;
     Pacman pacman;
+    AI ai;
     Queue<GhostMode> modes;
     Queue<Integer> durations;
     int frightenedDuration;
@@ -20,11 +23,12 @@ public abstract class GhostController extends EntityController {
     int modeCounter;
     int frightenedCounter;
 
-    public GhostController(Ghost ghost, Pacman pacman, int FPS, TileMap tileMap) {
+    public GhostController(Ghost ghost, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(ghost, tileMap);
         this.ghost = ghost;
-        this.FPS = FPS;
         this.pacman = pacman;
+        this.ai = ai;
+        this.FPS = FPS;
         GhostModeSchedule profile = new GhostModeSchedule();
         modes = profile.modes;
         durations = profile.durations;
@@ -44,7 +48,12 @@ public abstract class GhostController extends EntityController {
         return false;
     }
 
-    public void setFrightened() {}
+    public void setFrightened() {
+        ghost.setFrightened();
+        frightenedCounter = 0;
+    }
+
+    public Point2D.Double targetTile() {return null;}
 
     public void updateGhostMode() {}
 
@@ -70,5 +79,10 @@ public abstract class GhostController extends EntityController {
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 
-    public void update() {super.update();};
+    public void update() {
+        updateGhostMode();
+        ghost.setSprite();
+        ghost.nextDirection = ai.getDirection(ghost, targetTile());
+        super.update();
+    };
 }

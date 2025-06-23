@@ -1,7 +1,10 @@
 package com.example.controller;
 
+import java.awt.geom.Point2D;
+
 import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
+import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Blinky;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
@@ -11,10 +14,15 @@ public class BlinkyController extends GhostController {
 
     Ghost blinky;
     
-    public BlinkyController(Blinky blinky, Pacman pacman, int FPS, TileMap tileMap) {
-        super(blinky, pacman, FPS, tileMap);
+    public BlinkyController(Blinky blinky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
+        super(blinky, pacman, ai, FPS, tileMap);
         this.blinky = blinky;
         getNextMode();
+    }
+
+    public Point2D.Double targetTile() {
+        if (blinky.mode == GhostMode.Chase) return ai.getPacmanTile();
+        return new Point2D.Double(25, -4);
     }
 
     @Override
@@ -37,8 +45,8 @@ public class BlinkyController extends GhostController {
             pacman.die();
         } else if (blinky.mode == GhostMode.Spawn) {
             if (blinky.y == 11) {
-                blinky.setMode(GhostMode.Chase);
-                blinky.setDirection(blinky.ai.getDirection(blinky));
+                blinky.setMode(currenMode);
+                blinky.setDirection(ai.getDirection(blinky, targetTile()));
             } else {
                 blinky.setDirection(90);
             } 
@@ -46,17 +54,5 @@ public class BlinkyController extends GhostController {
             if (++modeCounter >= modeDuration) getNextMode();
             blinky.setMode(currenMode);
         }
-    }
-
-    @Override
-    public void setFrightened() {
-        blinky.setFrightened();
-        frightenedCounter = 0;
-    }
-
-    @Override
-    public void update() {
-        updateGhostMode();
-        super.update();
     }
 }

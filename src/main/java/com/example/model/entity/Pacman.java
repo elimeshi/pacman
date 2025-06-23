@@ -13,8 +13,6 @@ public class Pacman extends Entity {
 
     public int mouthDegrees = 0;
     private boolean isMouthOpening = true;
-    
-    public int points = 0;
 
     public void updateMouth() {
         mouthDegrees += isMouthOpening ? 3 : -3;
@@ -34,10 +32,5 @@ public class Pacman extends Entity {
         direction = 90;
         mouthDegrees = 25;
         dead = true;
-    }
-
-    public void update() {
-        updateMouth();
-        super.update();
     }
 }

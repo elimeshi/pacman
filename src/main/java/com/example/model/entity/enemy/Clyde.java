@@ -11,10 +11,4 @@ public class Clyde extends Ghost {
         nextDirection = -90;
         regenPos = new Point2D.Double(15.5, 14);
     }
-
-    public Point2D.Double targetTile() {
-        Point2D.Double pacmanTile = ai.getPacmanTile();
-        if (mode == GhostMode.Chase && pacmanTile.distance(x, y) < 8) return pacmanTile;
-        return new Point2D.Double(0, 31);
-    }
 }

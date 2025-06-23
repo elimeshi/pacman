@@ -1,6 +1,5 @@
 package com.example.model.entity.enemy;
 
-import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
@@ -78,16 +77,5 @@ public class Ghost extends Entity {
 
     public void setSpeed(double newSpeed) {
         speed = newSpeed;
-    } 
-
-    public void update() {
-        setSprite();
-        nextDirection = ai.getDirection(this);
-        super.update(); // update direction and update position
     }
-
-    public void draw(Graphics2D g2) {
-        
-    }
-    
 }

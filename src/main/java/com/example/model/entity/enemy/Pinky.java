@@ -11,18 +11,4 @@ public class Pinky extends Ghost {
         nextDirection = 90;
         regenPos = new Point2D.Double(13.5, 14);
     }
-
-    public Point2D.Double targetTile() {
-        if (mode == GhostMode.Chase) {
-            Point2D.Double pacmanTile = ai.getPacmanTile();
-            switch (ai.getPacmanDirection()) {
-                case 0:   pacmanTile.x += 4; break;
-                case -90: pacmanTile.y += 4; break;
-                case 90:  pacmanTile.y -= 4;
-                case 180: pacmanTile.x -= 4; break;
-            }
-            return pacmanTile;
-        }
-        return new Point2D.Double(2, -4);
-    }
 }
