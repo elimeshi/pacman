@@ -10,7 +10,7 @@ public class InkyController extends GhostController {
     Ghost inky;
 
     public InkyController(Inky inky, Pacman pacman, int FPS, TileMap tileMap) {
-        super(pacman, FPS, tileMap);
+        super(inky, pacman, FPS, tileMap);
         this.inky = inky;
     }
 

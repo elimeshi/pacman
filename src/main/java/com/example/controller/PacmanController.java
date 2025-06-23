@@ -11,13 +11,12 @@ public class PacmanController extends EntityController {
     public int points;
 
     public PacmanController(Pacman pacman, TileMap tileMap) {
-        super(tileMap);
+        super(pacman, tileMap);
         this.pacman = pacman;
-        speed = pacman.speed;
     }
 
     public TileType collectPellet() {
-        int ix = (int) x, iy = (int) y;
+        int ix = (int) pacman.x, iy = (int) pacman.y;
         Tile currentTile = tileMap.getTileAt(iy, ix);
 
         switch (currentTile.type) {
@@ -31,14 +30,6 @@ public class PacmanController extends EntityController {
     }
 
     public void update() {
-        x = pacman.x;
-        y = pacman.y;
-        direction = pacman.direction;
-        nextDirection = pacman.nextDirection;
         super.update();
-        pacman.x = x;
-        pacman.y = y;
-        pacman.direction = direction;
-        pacman.nextDirection = nextDirection;
     }
 }

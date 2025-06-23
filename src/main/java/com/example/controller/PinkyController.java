@@ -10,7 +10,7 @@ public class PinkyController extends GhostController {
     Ghost pinky;
 
     public PinkyController(Pinky pinky, Pacman pacman, int FPS, TileMap tileMap) {
-        super(pacman, FPS, tileMap);
+        super(pinky, pacman, FPS, tileMap);
         this.pinky = pinky;
     }
 

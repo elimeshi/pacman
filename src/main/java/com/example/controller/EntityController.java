@@ -1,39 +1,41 @@
 package com.example.controller;
 
+import com.example.model.entity.Entity;
 import com.example.model.tile.Tile;
 import com.example.model.tile.TileMap;
 import com.example.model.tile.TileType;
 
 public abstract class EntityController {
-    public double x, y, speed;
+
+    public Entity entity;
     public double EPSILON = 1e-5;
-    public int direction, nextDirection;
     public TileMap tileMap;
 
-    public EntityController(TileMap tileMap) {
+    public EntityController(Entity entity, TileMap tileMap) {
+        this.entity = entity;
         this.tileMap = tileMap;
     }
 
     public boolean isOnTile() {
-        return y % 1 == 0 && x % 1 == 0;
+        return entity.y % 1 == 0 && entity.x % 1 == 0;
     }
 
     public double snapIfClose(double pos) {
-        double threshold = speed / 2.0 + EPSILON;
+        double threshold = entity.speed / 2.0 + EPSILON;
         double nearest = Math.round(pos);
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 
     public void updateDirection() {
-        if ((direction - nextDirection) % 180 == 0) { // if next direction is back from the current direction
-            direction = nextDirection;
-        } else if (nextDirection != direction && isOnTile() && getNextTile(nextDirection).type != TileType.Wall) 
-            direction = nextDirection;
+        if ((entity.direction - entity.nextDirection) % 180 == 0) { // if next direction is back from the current direction
+            entity.direction = entity.nextDirection;
+        } else if (entity.nextDirection != entity.direction && isOnTile() && getNextTile(entity.nextDirection).type != TileType.Wall) 
+            entity.direction = entity.nextDirection;
     }
     
     public Tile getNextTile(int direction) {
-        int nextTileRow = (int) y;
-        int nextTileCol = (int) x;
+        int nextTileRow = (int) entity.y;
+        int nextTileCol = (int) entity.x;
 
         switch(direction) {
             case 90: nextTileRow -= 1; break; // up
@@ -48,9 +50,9 @@ public abstract class EntityController {
     }
 
     public void updatePosition() {
-        if (isOnTile() && getNextTile(direction).type == TileType.Wall) return;
-        
-        switch (direction) {
+        if (isOnTile() && getNextTile(entity.direction).type == TileType.Wall) return;
+        double x = entity.x, y = entity.y, speed = entity.speed;
+        switch (entity.direction) {
             case 0:   x += speed; break; // right
             case 90:  y -= speed; break; // up
             case -90: y += speed; break; // down
@@ -60,6 +62,8 @@ public abstract class EntityController {
 
         x = snapIfClose(x);
         y = snapIfClose(y);
+
+        entity.setPosition(x, y);
     }
 
     public void update() {

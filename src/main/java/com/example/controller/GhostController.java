@@ -9,6 +9,7 @@ import com.example.model.tile.TileMap;
 
 public abstract class GhostController extends EntityController {
 
+    Ghost ghost;
     Pacman pacman;
     Queue<GhostMode> modes;
     Queue<Integer> durations;
@@ -19,8 +20,9 @@ public abstract class GhostController extends EntityController {
     int modeCounter;
     int frightenedCounter;
 
-    public GhostController(Pacman pacman, int FPS, TileMap tileMap) {
-        super(tileMap);
+    public GhostController(Ghost ghost, Pacman pacman, int FPS, TileMap tileMap) {
+        super(ghost, tileMap);
+        this.ghost = ghost;
         this.FPS = FPS;
         this.pacman = pacman;
         GhostModeSchedule profile = new GhostModeSchedule();
@@ -31,11 +33,11 @@ public abstract class GhostController extends EntityController {
     }
 
     public boolean isInPen() {
-        return (x >= 11 && x <= 16 && 
-                y >= 13 && y <= 15) 
+        return (ghost.x >= 11 && ghost.x <= 16 && 
+                ghost.y >= 13 && ghost.y <= 15) 
                 ||
-               (x >= 13 && x <= 14 && 
-                y >= 11 && y <= 15);
+               (ghost.x >= 13 && ghost.x <= 14 && 
+                ghost.y >= 11 && ghost.y <= 15);
     }
 
     public boolean isFrightened() {
@@ -46,9 +48,9 @@ public abstract class GhostController extends EntityController {
 
     public void updateGhostMode() {}
 
-    public boolean collisionWithPacman(Ghost ghost) {
-        return (Math.abs(pacman.x - ghost.x) < 0.5 && 
-                Math.abs(pacman.y - ghost.y) < 0.5);
+    public boolean collisionWithPacman() {
+        return (Math.abs(pacman.x - ghost.x) < 0.8 && 
+                Math.abs(pacman.y - ghost.y) < 0.8);
     }
 
     public void getNextMode() {
@@ -63,7 +65,7 @@ public abstract class GhostController extends EntityController {
     }
 
     public double snapIfClose(double pos) {
-        double threshold = speed / 2.0 + EPSILON;
+        double threshold = ghost.speed / 2.0 + EPSILON;
         double nearest = isInPen() ? snapToHalf(pos) : Math.round(pos);
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }

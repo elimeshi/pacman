@@ -10,7 +10,7 @@ public class ClydeController extends GhostController {
     Ghost clyde;
 
     public ClydeController(Clyde clyde, Pacman pacman, int FPS, TileMap tileMap) {
-        super(pacman, FPS, tileMap);
+        super(clyde, pacman, FPS, tileMap);
         this.clyde = clyde;
     }
 

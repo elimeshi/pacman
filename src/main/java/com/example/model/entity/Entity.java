@@ -45,6 +45,11 @@ public class Entity {
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public void update() {
     }
 }
