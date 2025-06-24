@@ -16,11 +16,12 @@ public class PinkyController extends GhostController {
     public PinkyController(Pinky pinky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(pinky, pacman, ai, FPS, tileMap);
         this.pinky = pinky;
+        scatterTile = new Point2D.Double(2, -4);
     }
 
     public Point2D.Double targetTile() {
         if (pinky.mode == GhostMode.Chase) {
-            Point2D.Double pacmanTile = ai.getPacmanTile();
+            Point2D.Double pacmanTile = getPacmanTile();
             switch (ai.getPacmanDirection()) {
                 case 0:   pacmanTile.x += 4; break;
                 case -90: pacmanTile.y += 4; break;
@@ -29,7 +30,7 @@ public class PinkyController extends GhostController {
             }
             return pacmanTile;
         }
-        return new Point2D.Double(2, -4);
+        return super.targetTile();
     }
 
     @Override

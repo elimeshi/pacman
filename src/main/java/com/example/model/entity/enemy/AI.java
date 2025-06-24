@@ -34,12 +34,15 @@ public class AI {
         this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
-    public Point2D.Double getBlinkyTile() {
-        return new Point2D.Double(blinky.x, blinky.y);
+    public void updateGlobalVariables(Ghost ghost) {
+        tileX = ghost.x;
+        tileY = ghost.y;
+        direction = ghost.direction;
+        mode = ghost.mode;
     }
 
-    public Point2D.Double getPacmanTile() {
-        return new Point2D.Double(pacman.x, pacman.y);
+    public Point2D.Double getBlinkyTile() {
+        return new Point2D.Double(blinky.x, blinky.y);
     }
 
     public int getPacmanDirection() {
@@ -109,50 +112,29 @@ public class AI {
         return filtered.stream().mapToInt(i -> i).toArray();
     }
 
-    public int directionIfEaten(Ghost ghost, int directionToPenGate) {
-        if (ghost.isOnPenTile()) {
-            if (ghost.y == 11 && ghost.x != 13.5) return ghost.x < 13.5 ? 0 : 180;
-            if (ghost.y < ghost.regenPos.y) return -90;
-            if (ghost.x != ghost.regenPos.x) return ghost.x < ghost.regenPos.x ? 0 : 180;
-            return -90;
-        }
-        return directionToPenGate;
-    }
-
-    public int directionInPen(Ghost ghost) {
+    public int getDirectionInPen(Ghost ghost) {
+        updateGlobalVariables(ghost);
         if (tileY <= 13.5) return -90; // move down
         if (tileY >= 14.5) return  90; // move up
         return direction;
     }
 
-    public int directionToSpawn(Ghost ghost) {
+    public int getDirectionIfSpawn(Ghost ghost) {
         if (ghost.x != 13.5) return ghost.x < 13.5 ? 0 : 180;
         return 90;
     }
 
-    public int getDirection(Ghost ghost, Point2D.Double target) {
-        tileX = ghost.x;
-        tileY = ghost.y;
-        direction = ghost.direction;
-        mode = ghost.mode;
-        
+    public int getDirectionToTarget(Ghost ghost, Point2D.Double target) {
+        updateGlobalVariables(ghost);
         int[] directions = getPossibleDirections(tileMap);
-        switch (mode) {
-            case Chase:
-            case Scatter:
-                // Point2D.Double target = ghost.targetTile();
-                return filterByTarget(directions, target)[0];
-            case Frightened:
-                if (ghost.isInPen()) return directionInPen(ghost);
-                Random r = new Random(); 
-                return directions[r.nextInt(directions.length)];
-            case Eaten:
-                return directionIfEaten(ghost, filterByTarget(directions, ghostPenGate)[0]);
-            case InPen:
-                return directionInPen(ghost);
-            case Spawn:
-                return directionToSpawn(ghost);
-        }
-        return 0;
+        return filterByTarget(directions, target)[0];
+    }
+
+    public int getDirectionIfFrightened(Ghost ghost) {
+        if (ghost.isInPen()) return getDirectionInPen(ghost);
+        updateGlobalVariables(ghost);
+        int[] directions = getPossibleDirections(tileMap);
+        Random r = new Random(); 
+        return directions[r.nextInt(directions.length)];
     }
 }

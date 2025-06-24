@@ -17,12 +17,13 @@ public class BlinkyController extends GhostController {
     public BlinkyController(Blinky blinky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(blinky, pacman, ai, FPS, tileMap);
         this.blinky = blinky;
+        scatterTile = new Point2D.Double(25, -4);
         getNextMode();
     }
 
     public Point2D.Double targetTile() {
-        if (blinky.mode == GhostMode.Chase) return ai.getPacmanTile();
-        return new Point2D.Double(25, -4);
+        if (blinky.mode == GhostMode.Chase) return getPacmanTile();
+        return super.targetTile();
     }
 
     @Override
@@ -46,7 +47,7 @@ public class BlinkyController extends GhostController {
         } else if (blinky.mode == GhostMode.Spawn) {
             if (blinky.y == 11) {
                 blinky.setMode(currenMode);
-                blinky.setDirection(ai.getDirection(blinky, targetTile()));
+                blinky.setDirection(ai.getDirectionToTarget(blinky, targetTile()));
             } else {
                 blinky.setDirection(90);
             } 

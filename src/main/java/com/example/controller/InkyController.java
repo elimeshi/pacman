@@ -16,11 +16,12 @@ public class InkyController extends GhostController {
     public InkyController(Inky inky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(inky, pacman, ai, FPS, tileMap);
         this.inky = inky;
+        scatterTile = new Point2D.Double(27, 31);
     }
 
     public Point2D.Double targetTile() {
         if (inky.mode == GhostMode.Chase) {
-            Point2D.Double pacmanTile = ai.getPacmanTile();
+            Point2D.Double pacmanTile = getPacmanTile();
             Point2D.Double blinkyTile = ai.getBlinkyTile();
             int pacmanDirection = ai.getPacmanDirection();
             switch (pacmanDirection) {
@@ -31,7 +32,7 @@ public class InkyController extends GhostController {
             }
             return new Point2D.Double(2 * pacmanTile.x - blinkyTile.x, 2 * pacmanTile.y - blinkyTile.y);
         }
-        return new Point2D.Double(27, 31);
+        return super.targetTile();
     }
 
     @Override

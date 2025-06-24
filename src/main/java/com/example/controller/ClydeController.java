@@ -16,12 +16,15 @@ public class ClydeController extends GhostController {
     public ClydeController(Clyde clyde, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(clyde, pacman, ai, FPS, tileMap);
         this.clyde = clyde;
+        scatterTile = new Point2D.Double(0, 31);
     }
 
     public Point2D.Double targetTile() {
-        Point2D.Double pacmanTile = ai.getPacmanTile();
-        if (clyde.mode == GhostMode.Chase && pacmanTile.distance(clyde.x, clyde.y) < 8) return pacmanTile;
-        return new Point2D.Double(0, 31);
+        if (clyde.mode == GhostMode.Chase) {
+            Point2D.Double pacmanTile = getPacmanTile();
+            return pacmanTile.distance(clyde.x, clyde.y) > 8 ? pacmanTile : scatterTile;
+        }
+        return super.targetTile();
     }
 
     @Override

@@ -22,6 +22,8 @@ public abstract class GhostController extends EntityController {
     int modeDuration;
     int modeCounter;
     int frightenedCounter;
+    Point2D.Double scatterTile;
+    Point2D.Double ghostPenGate;
 
     public GhostController(Ghost ghost, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
         super(ghost, tileMap);
@@ -34,6 +36,17 @@ public abstract class GhostController extends EntityController {
         durations = profile.durations;
         frightenedDuration = profile.frightenedDuration;
         frightenedCounter = -1;
+        this.ghostPenGate = new Point2D.Double(13, 11);
+    }
+
+    public Point2D.Double getPacmanTile() {
+        return new Point2D.Double(pacman.x, pacman.y);
+    }
+
+    public Point2D.Double targetTile() {
+        if (ghost.mode == GhostMode.Scatter) return scatterTile;
+        if (ghost.mode == GhostMode.Eaten) return ghostPenGate;
+        return null;
     }
 
     public boolean isInPen() {
@@ -44,18 +57,46 @@ public abstract class GhostController extends EntityController {
                 ghost.y >= 11 && ghost.y <= 15);
     }
 
-    public boolean isFrightened() {
-        return false;
-    }
-
     public void setFrightened() {
         ghost.setFrightened();
         frightenedCounter = 0;
     }
 
-    public Point2D.Double targetTile() {return null;}
+    public boolean isFrightened() {return false;}
 
     public void updateGhostMode() {}
+
+    public void updateGhostNextDirection() {
+        switch (ghost.mode) {
+            case Chase:
+            case Scatter:
+                ghost.nextDirection = ai.getDirectionToTarget(ghost, targetTile());
+                break;
+            case Frightened:
+                ghost.nextDirection = ai.getDirectionIfFrightened(ghost);
+                break;
+            case Eaten:
+                if (!ghost.isInPen()) {
+                    ghost.nextDirection = ai.getDirectionToTarget(ghost, ghostPenGate); return;
+                }
+
+                if (ghost.y == 11 && ghost.x != 13.5) {
+                    ghost.setDirection(ghost.x < 13.5 ? 0 : 180); return;
+                } else if (ghost.y < ghost.regenPos.y) {
+                    ghost.setDirection(-90); return;
+                } else if (ghost.x != ghost.regenPos.x) {
+                    ghost.setDirection(ghost.x < ghost.regenPos.x ? 0 : 180);
+                }
+                break;
+            case Spawn:
+                ghost.nextDirection = ai.getDirectionIfSpawn(ghost);
+                break;
+            case InPen:
+                ghost.setDirection(ai.getDirectionInPen(ghost));
+            default:
+                break;
+        }
+    }
 
     public boolean collisionWithPacman() {
         return (Math.abs(pacman.x - ghost.x) < 0.8 && 
@@ -81,8 +122,8 @@ public abstract class GhostController extends EntityController {
 
     public void update() {
         updateGhostMode();
+        updateGhostNextDirection();
         ghost.setSprite();
-        ghost.nextDirection = ai.getDirection(ghost, targetTile());
         super.update();
     };
 }
