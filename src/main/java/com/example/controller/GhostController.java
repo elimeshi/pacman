@@ -37,6 +37,7 @@ public abstract class GhostController extends EntityController {
         durations = profile.durations;
         frightenedDuration = profile.frightenedDuration;
         frightenedCounter = -1;
+        currenMode = null;
         this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
@@ -58,11 +59,6 @@ public abstract class GhostController extends EntityController {
                 ghost.y >= 11 && ghost.y <= 15);
     }
 
-    public boolean isInsidePen() {
-        return ghost.x >= 11 && ghost.x <= 16 && 
-               ghost.y >= 13 && ghost.y <= 15;
-    }
-
     public void setFrightened() {
         if (ghost.mode == GhostMode.Eaten) return;
         if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
@@ -70,13 +66,20 @@ public abstract class GhostController extends EntityController {
         frightenedCounter = 0;
     }
 
-    public boolean isFrightened() {return false;}
+    public void getOutOfPen() {
+        if (currenMode != null) return;
+        getNextMode();
+        ghost.setMode(GhostMode.Spawn);
+    }
 
     public void updateGhostMode() {
         if (ghost.isFrightened) {
+            
             if (++frightenedCounter >= frightenedDuration * FPS) {
                 ghost.setFrightenedOff();
-            }
+            } else if (frightenedDuration * FPS - frightenedCounter <= 2 * FPS) {
+                ghost.frightenedIsOver = true;
+            } 
         }
         if (ghost.mode == GhostMode.Frightened) {
             if (!ghost.isFrightened) {
@@ -104,7 +107,7 @@ public abstract class GhostController extends EntityController {
             } else {
                 ghost.setDirection(ai.getDirectionIfSpawn(ghost));
             } 
-        } else {
+        } else if (ghost.mode != GhostMode.InPen) {
             if (++modeCounter >= modeDuration) getNextMode();
             ghost.setMode(currenMode);
         }
@@ -119,7 +122,7 @@ public abstract class GhostController extends EntityController {
                 break;
             case Frightened:
                 if (!isOnTile() && !isInPen()) return;
-                ghost.nextDirection = ai.getDirectionIfFrightened(ghost);
+                ghost.setDirection(ai.getDirectionIfFrightened(ghost));
                 break;
             case Eaten:
                 if (!ghost.isInPen()) {

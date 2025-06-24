@@ -131,7 +131,7 @@ public class AI {
     }
 
     public int getDirectionIfFrightened(Ghost ghost) {
-        if (ghost.isInPen()) return getDirectionInPen(ghost);
+        if (ghost.isInPen() && ghost.mode != GhostMode.Frightened) return getDirectionInPen(ghost);
         updateGlobalVariables(ghost);
         int[] directions = getPossibleDirections(tileMap);
         Random r = new Random(); 

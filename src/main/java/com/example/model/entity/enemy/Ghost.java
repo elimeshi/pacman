@@ -28,14 +28,14 @@ public class Ghost extends Entity {
 
     public void updateFrightenedSpriteIdx() {
         if (!frightenedIsOver) return; 
-        if (++frightenedSpriteCounter == 30) {
+        if (++frightenedSpriteCounter >= 10) {
             frightenedSpriteCounter = 0;
             frightenedSpriteIdx = frightenedSpriteIdx == 0 ? 1 : 0;
         }
     }
 
     public void updateSpriteIdx() {
-        if (++spriteCounter == 10) {
+        if (++spriteCounter >= 10) {
             spriteCounter = 0;
             spriteIdx = spriteIdx == 0 ? 1 : 0;
         }
