@@ -113,12 +113,12 @@ public abstract class GhostController extends EntityController {
         }
     }
 
-    public void updateGhostNextDirection() {
+    public void updateGhostDirection() {
         switch (ghost.mode) {
             case Chase:
             case Scatter:
                 if (!isOnTile()) return;
-                ghost.nextDirection = ai.getDirectionToTarget(ghost, targetTile());
+                ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
                 break;
             case Frightened:
                 if (!isOnTile() && !isInPen()) return;
@@ -127,7 +127,7 @@ public abstract class GhostController extends EntityController {
             case Eaten:
                 if (!ghost.isInPen()) {
                     if (!isOnTile()) return;
-                    ghost.nextDirection = ai.getDirectionToTarget(ghost, ghostPenGate); return;
+                    ghost.setDirection(ai.getDirectionToTarget(ghost, ghostPenGate)); return;
                 }
 
                 if (ghost.y == 11 && ghost.x != 13.5) {
@@ -139,7 +139,7 @@ public abstract class GhostController extends EntityController {
                 }
                 break;
             case Spawn:
-                ghost.nextDirection = ai.getDirectionIfSpawn(ghost);
+                ghost.setDirection(ai.getDirectionIfSpawn(ghost));
                 break;
             case InPen:
                 ghost.setDirection(ai.getDirectionInPen(ghost));
@@ -172,7 +172,7 @@ public abstract class GhostController extends EntityController {
 
     public void update() {
         updateGhostMode();
-        updateGhostNextDirection();
+        updateGhostDirection();
         ghost.setSprite();
         super.update();
     };

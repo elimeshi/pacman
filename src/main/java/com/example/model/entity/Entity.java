@@ -5,8 +5,7 @@ import com.example.model.entity.enemy.Ghost;
 public class Entity {
     public double x, y, speed;
     public int mapWidth;
-    public int direction = 0;
-    public int nextDirection = 0;
+    public int direction;
     public int scale;
     public double EPSILON = 1e-5;
 

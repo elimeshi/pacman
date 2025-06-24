@@ -15,6 +15,13 @@ public class PacmanController extends EntityController {
         this.pacman = pacman;
     }
 
+    public void updateDirection() {
+        if ((pacman.direction - pacman.nextDirection) % 180 == 0) { // if next direction is back from the current direction
+            pacman.direction = pacman.nextDirection;
+        } else if (pacman.nextDirection != pacman.direction && isOnTile() && getNextTile(pacman.nextDirection).type != TileType.Wall) 
+            pacman.direction = pacman.nextDirection;
+    }
+
     public TileType collectPellet() {
         int ix = (int) pacman.x, iy = (int) pacman.y;
         Tile currentTile = tileMap.getTileAt(iy, ix);
@@ -31,6 +38,7 @@ public class PacmanController extends EntityController {
 
     public void update() {
         pacman.updateMouth();
+        updateDirection();
         super.update();
     }
 }

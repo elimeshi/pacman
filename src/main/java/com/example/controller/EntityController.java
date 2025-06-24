@@ -26,13 +26,6 @@ public abstract class EntityController {
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 
-    public void updateDirection() {
-        if ((entity.direction - entity.nextDirection) % 180 == 0) { // if next direction is back from the current direction
-            entity.direction = entity.nextDirection;
-        } else if (entity.nextDirection != entity.direction && isOnTile() && getNextTile(entity.nextDirection).type != TileType.Wall) 
-            entity.direction = entity.nextDirection;
-    }
-    
     public Tile getNextTile(int direction) {
         int nextTileRow = (int) entity.y;
         int nextTileCol = (int) entity.x;
@@ -67,7 +60,6 @@ public abstract class EntityController {
     }
 
     public void update() {
-        updateDirection();
         updatePosition();
     }
 }

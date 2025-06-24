@@ -8,7 +8,6 @@ public class Clyde extends Ghost {
         super(x, y, speed);
         mode = GhostMode.InPen;
         direction = -90;
-        nextDirection = -90;
         regenPos = new Point2D.Double(15.5, 14);
     }
 }

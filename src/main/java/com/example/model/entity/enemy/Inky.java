@@ -8,7 +8,6 @@ public class Inky extends Ghost {
         super(x, y, speed);
         mode = GhostMode.InPen;
         direction = -90;
-        nextDirection = -90;
         regenPos = new Point2D.Double(11.5, 14);
     }
 }

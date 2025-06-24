@@ -77,7 +77,6 @@ public class Ghost extends Entity {
 
     public void setDirection(int newDirection) {
         direction = newDirection;
-        nextDirection = newDirection;
     }
 
     public void setSpeed(double newSpeed) {

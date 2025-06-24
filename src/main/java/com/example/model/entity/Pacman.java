@@ -2,6 +2,7 @@ package com.example.model.entity;
 
 public class Pacman extends Entity {
 
+    public int nextDirection;
     public boolean dead = false;
     public boolean gameOver = false;
 
