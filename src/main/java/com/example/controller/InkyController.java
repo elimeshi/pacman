@@ -34,9 +34,4 @@ public class InkyController extends GhostController {
         }
         return super.targetTile();
     }
-
-    @Override
-    public void updateGhostMode() {
-        
-    }
 }

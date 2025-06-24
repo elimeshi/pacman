@@ -26,9 +26,4 @@ public class ClydeController extends GhostController {
         }
         return super.targetTile();
     }
-
-    @Override
-    public void updateGhostMode() {
-        
-    }
 }

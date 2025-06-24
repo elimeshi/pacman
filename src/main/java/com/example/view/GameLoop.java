@@ -94,7 +94,7 @@ public class GameLoop {
         for (Ghost ghost : ghosts) {
             double x = ghost.x, y = ghost.y;
             if (ghost.mode != GhostMode.Eaten) drawSprite(g2, ghost.sprite, x, y, tileSize, scale);
-            if (ghost.mode != GhostMode.Frightened) drawSprite(g2, ghost.eyes, x, y, tileSize, scale);
+            if (!ghost.isFrightened) drawSprite(g2, ghost.eyes, x, y, tileSize, scale);
         }
     }
 

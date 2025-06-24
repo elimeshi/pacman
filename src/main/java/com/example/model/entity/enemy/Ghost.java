@@ -9,6 +9,7 @@ import com.example.utils.*;
 public class Ghost extends Entity {
 
     public GhostMode mode;
+    public boolean isFrightened;
     public boolean frightenedIsOver = false;
     public int spriteIdx = 0;
     public int spriteCounter = 0;
@@ -44,7 +45,7 @@ public class Ghost extends Entity {
         updateSpriteIdx();
 
         String spritePath;
-        if (mode == GhostMode.Frightened) {
+        if (isFrightened) {
             frightenedCounter++;
             updateFrightenedSpriteIdx();
             spritePath = "ghosts/frightened" + frightenedSpriteIdx + spriteIdx + ".png";
@@ -57,11 +58,15 @@ public class Ghost extends Entity {
     }
 
     public void setFrightened() {
-        mode = GhostMode.Frightened;
+        isFrightened = true;
         frightenedSpriteCounter = 30;
         frightenedSpriteIdx = 0;
         frightenedCounter = 0;
         frightenedIsOver = false;
+    }
+
+    public void setFrightenedOff() {
+        isFrightened = false;
     }
 
     public Point2D.Double targetTile() { return new Point2D.Double(0, 0); }

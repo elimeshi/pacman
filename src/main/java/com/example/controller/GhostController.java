@@ -3,6 +3,7 @@ package com.example.controller;
 import java.awt.geom.Point2D;
 import java.util.Queue;
 
+import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Ghost;
@@ -57,26 +58,72 @@ public abstract class GhostController extends EntityController {
                 ghost.y >= 11 && ghost.y <= 15);
     }
 
+    public boolean isInsidePen() {
+        return ghost.x >= 11 && ghost.x <= 16 && 
+               ghost.y >= 13 && ghost.y <= 15;
+    }
+
     public void setFrightened() {
+        if (ghost.mode == GhostMode.Eaten) return;
+        if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
         ghost.setFrightened();
         frightenedCounter = 0;
     }
 
     public boolean isFrightened() {return false;}
 
-    public void updateGhostMode() {}
+    public void updateGhostMode() {
+        if (ghost.isFrightened) {
+            if (++frightenedCounter >= frightenedDuration * FPS) {
+                ghost.setFrightenedOff();
+            }
+        }
+        if (ghost.mode == GhostMode.Frightened) {
+            if (!ghost.isFrightened) {
+                ghost.setMode(currenMode); return;
+            }
+            if (collisionWithPacman()) {
+                ghost.setFrightenedOff();
+                ghost.setMode(GhostMode.Eaten);
+                ghost.setSpeed(Speeds.eaten);
+            }
+        } else if (ghost.mode == GhostMode.Eaten) {
+            if (ghost.x == 13.5 && ghost.y == 11) {
+                ghost.setDirection(-90);
+            } else if (ghost.y == ghost.regenPos.y && ghost.x == ghost.regenPos.x) {
+                ghost.setMode(GhostMode.Spawn);
+                ghost.setSpeed(Speeds.ghostNormal);
+            }
+        } else if (collisionWithPacman()) {
+            pacman.die();
+        } else if (ghost.mode == GhostMode.Spawn) {
+            if (ghost.y == 11) {
+                if (ghost.isFrightened) { ghost.setMode(GhostMode.Frightened); return; }
+                ghost.setMode(currenMode);
+                ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
+            } else {
+                ghost.setDirection(ai.getDirectionIfSpawn(ghost));
+            } 
+        } else {
+            if (++modeCounter >= modeDuration) getNextMode();
+            ghost.setMode(currenMode);
+        }
+    }
 
     public void updateGhostNextDirection() {
         switch (ghost.mode) {
             case Chase:
             case Scatter:
+                if (!isOnTile()) return;
                 ghost.nextDirection = ai.getDirectionToTarget(ghost, targetTile());
                 break;
             case Frightened:
+                if (!isOnTile() && !isInPen()) return;
                 ghost.nextDirection = ai.getDirectionIfFrightened(ghost);
                 break;
             case Eaten:
                 if (!ghost.isInPen()) {
+                    if (!isOnTile()) return;
                     ghost.nextDirection = ai.getDirectionToTarget(ghost, ghostPenGate); return;
                 }
 

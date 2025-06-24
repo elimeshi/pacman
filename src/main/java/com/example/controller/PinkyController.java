@@ -32,9 +32,4 @@ public class PinkyController extends GhostController {
         }
         return super.targetTile();
     }
-
-    @Override
-    public void updateGhostMode() {
-        
-    }
 }
