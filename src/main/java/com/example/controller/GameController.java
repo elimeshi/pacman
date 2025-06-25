@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.*;
+import com.example.model.fruit.Fruit;
 import com.example.model.tile.TileMap;
 import com.example.model.tile.TileType;
 
@@ -9,11 +10,12 @@ public class GameController {
 
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
+    public FruitController fruitController;
     public TileType pacmanTile;
     public int initialDots = 254;
     public int eatenDots = 0;
 
-    public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, TileMap tileMap, int FPS) {
+    public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, Fruit fruit, TileMap tileMap, int FPS) {
         pacmanController = new PacmanController(pacman, tileMap);
         ghostControllers = new GhostController[]{
             new BlinkyController(blinky, pacman, ai, FPS, tileMap),
@@ -21,6 +23,7 @@ public class GameController {
             new InkyController(inky, pacman, ai, FPS, tileMap),
             new ClydeController(clyde, pacman, ai, FPS, tileMap),
         };
+        fruitController = new FruitController(fruit, pacman, FPS);
     }
 
     public void releaseGhosts() {
@@ -45,5 +48,6 @@ public class GameController {
             if (pacmanTile == TileType.Energizer) controller.setFrightened();
             controller.update();
         }
+        fruitController.update();
     }
 }

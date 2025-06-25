@@ -11,6 +11,7 @@ import com.example.controller.KeyHandler;
 import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.*;
+import com.example.model.fruit.Fruit;
 import com.example.model.tile.TileMap;
 import com.example.utils.AssetLoader;
 
@@ -23,6 +24,7 @@ public class GameLoop {
     int scale;
     Pacman pacman;
     Ghost[] ghosts;
+    Fruit fruit;
     GameController controller;
     AI ai;
 
@@ -44,9 +46,8 @@ public class GameLoop {
             new Clyde (15.5, 14, Speeds.ghostNormal)
         };
         ai = new AI(pacman, (Blinky) ghosts[0], tileMap);
-        controller = new GameController(pacman, (Blinky) ghosts[0], (Pinky) ghosts[1], (Inky) ghosts[2], (Clyde) ghosts[3], ai, tileMap, cfg.FPS);
-        
-        for (Ghost g : ghosts) g.setAI(ai);
+        fruit = new Fruit();
+        controller = new GameController(pacman, (Blinky) ghosts[0], (Pinky) ghosts[1], (Inky) ghosts[2], (Clyde) ghosts[3], ai, fruit, tileMap, cfg.FPS);
     }
 
     public void update() {
@@ -72,6 +73,16 @@ public class GameLoop {
             }
         }
     } 
+
+    public void drawFruit(Graphics2D g2) {
+        if (fruit.isVisible)
+        g2.drawImage(fruit.type.getImage(), 
+                     fruit.x * tileSize - scale, 
+                     fruit.y * tileSize - scale, 
+                     tileSize + scale * 2, 
+                     tileSize + scale * 2, 
+                     null);
+    }
 
     public void drawPacman(Graphics2D g2) {
         g2.setColor(Color.YELLOW);
@@ -119,6 +130,7 @@ public class GameLoop {
 
     public void draw(Graphics2D g2) {
         drawTileMap(g2);
+        drawFruit(g2);
         drawPacman(g2);
         drawGhosts(g2);
         drawPoints(g2);

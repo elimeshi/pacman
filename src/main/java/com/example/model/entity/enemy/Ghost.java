@@ -3,7 +3,6 @@ package com.example.model.entity.enemy;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-import com.example.controller.AI;
 import com.example.model.entity.Entity;
 import com.example.utils.*;
 
@@ -18,14 +17,11 @@ public class Ghost extends Entity {
     public int frightenedSpriteIdx = 0;
     public int frightenedSpriteCounter = 0;
     public Point2D.Double regenPos; // regeneration position in pixels
-    public AI ai;
     public BufferedImage sprite, eyes;
 
     public Ghost(double x, double y, double speed) {
         super(x, y, speed);
     }
-
-    public void setAI(AI ai) {this.ai = ai;}
 
     public void updateFrightenedSpriteIdx() {
         if (!frightenedIsOver) return; 
