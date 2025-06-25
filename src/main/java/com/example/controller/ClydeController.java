@@ -3,7 +3,6 @@ package com.example.controller;
 import java.awt.geom.Point2D;
 
 import com.example.model.entity.Pacman;
-import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Clyde;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;

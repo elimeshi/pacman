@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import com.example.config.GameConfig;
+import com.example.controller.AI;
 import com.example.controller.GameController;
 import com.example.controller.KeyHandler;
 import com.example.model.Speeds;

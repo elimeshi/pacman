@@ -5,7 +5,6 @@ import java.util.Queue;
 
 import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
-import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
@@ -17,12 +16,14 @@ public abstract class GhostController extends EntityController {
     AI ai;
     Queue<GhostMode> modes;
     Queue<Integer> durations;
-    int frightenedDuration;
-    GhostMode currenMode;
+    GhostMode currentMode;
     int FPS;
     int modeDuration;
     int modeCounter;
+    int frightenedDuration;
     int frightenedCounter;
+    int inPenDuration;
+    int inPenCounter;
     Point2D.Double scatterTile;
     Point2D.Double ghostPenGate;
 
@@ -35,9 +36,11 @@ public abstract class GhostController extends EntityController {
         GhostModeSchedule profile = new GhostModeSchedule();
         modes = profile.modes;
         durations = profile.durations;
-        frightenedDuration = profile.frightenedDuration;
+        frightenedDuration = profile.frightenedDuration * FPS;
+        inPenDuration = profile.inPenAfterEatenDuration * FPS;
         frightenedCounter = -1;
-        currenMode = null;
+        inPenCounter = -1;
+        currentMode = null;
         this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
@@ -68,51 +71,81 @@ public abstract class GhostController extends EntityController {
     }
 
     public void getOutOfPen() {
-        if (currenMode != null) return;
+        if (currentMode != null) return;
         getNextMode();
         ghost.setMode(GhostMode.Spawn);
     }
 
-    public void updateGhostMode() {
-        if (ghost.isFrightened) {
-            
-            if (++frightenedCounter >= frightenedDuration * FPS) {
-                ghost.setFrightenedOff();
-                ghost.setSpeed(Speeds.ghostNormal);
-            } else if (frightenedDuration * FPS - frightenedCounter <= 2 * FPS) {
-                ghost.frightenedIsOver = true;
-            } 
+    public void setInPen() {
+        inPenCounter = 0;
+        ghost.setMode(GhostMode.InPen);
+        ghost.setDirection(90);
+    }
+
+    public void updateFrightened() {
+        if (!ghost.isFrightened) return;
+
+        if (++frightenedCounter >= frightenedDuration) {
+            ghost.setFrightenedOff();
+            ghost.setSpeed(Speeds.ghostNormal);
+        } else if (frightenedDuration - frightenedCounter <= 2 * FPS) {
+            ghost.frightenedIsOver = true;
+        } 
+    }
+
+    public void updateFrightenedMode() {
+        if (!ghost.isFrightened) {
+            ghost.setMode(currentMode); return;
         }
+        if (collisionWithPacman()) {
+            ghost.setFrightenedOff();
+            pacman.addPoints(200);
+            ghost.setMode(GhostMode.Eaten);
+            ghost.setSpeed(Speeds.eaten);
+        }
+    }
+
+    public void updateEatenMode() {
+        if (ghost.x == 13.5 && ghost.y == 11) {
+            ghost.setDirection(-90);
+        } else if (ghost.y == ghost.regenPos.y && ghost.x == ghost.regenPos.x) {
+            setInPen();
+            ghost.setSpeed(Speeds.ghostNormal);
+        }
+    }
+
+    public void updateSpawnMode() {
+        if (ghost.y == 11) {
+            if (ghost.isFrightened) { ghost.setMode(GhostMode.Frightened); return; }
+            ghost.setMode(currentMode);
+            ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
+        } else {
+            ghost.setDirection(ai.getDirectionIfSpawn(ghost));
+        } 
+    }
+
+    public void updateInPenMode() {
+        if (inPenCounter < 0) return;
+        if (++inPenCounter >= inPenDuration) ghost.setMode(GhostMode.Spawn);
+    }
+
+    public void updateChaseAndScatterMode() {
+        if (++modeCounter >= modeDuration) getNextMode();
+        ghost.setMode(currentMode);
+    }
+
+    public void updateGhostMode() {
+        updateFrightened();
         if (ghost.mode == GhostMode.Frightened) {
-            if (!ghost.isFrightened) {
-                ghost.setMode(currenMode); return;
-            }
-            if (collisionWithPacman()) {
-                ghost.setFrightenedOff();
-                pacman.addPoints(200);
-                ghost.setMode(GhostMode.Eaten);
-                ghost.setSpeed(Speeds.eaten);
-            }
+            updateFrightenedMode();
         } else if (ghost.mode == GhostMode.Eaten) {
-            if (ghost.x == 13.5 && ghost.y == 11) {
-                ghost.setDirection(-90);
-            } else if (ghost.y == ghost.regenPos.y && ghost.x == ghost.regenPos.x) {
-                ghost.setMode(GhostMode.Spawn);
-                ghost.setSpeed(Speeds.ghostNormal);
-            }
-        } else if (collisionWithPacman()) {
-            pacman.die();
+            updateEatenMode();
         } else if (ghost.mode == GhostMode.Spawn) {
-            if (ghost.y == 11) {
-                if (ghost.isFrightened) { ghost.setMode(GhostMode.Frightened); return; }
-                ghost.setMode(currenMode);
-                ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
-            } else {
-                ghost.setDirection(ai.getDirectionIfSpawn(ghost));
-            } 
-        } else if (ghost.mode != GhostMode.InPen) {
-            if (++modeCounter >= modeDuration) getNextMode();
-            ghost.setMode(currenMode);
+            updateSpawnMode();
+        } else if (ghost.mode == GhostMode.InPen) {
+            updateInPenMode();
+        } else {
+            updateChaseAndScatterMode();
         }
     }
 
@@ -156,9 +189,13 @@ public abstract class GhostController extends EntityController {
                 Math.abs(pacman.y - ghost.y) < 0.8);
     }
 
+    public void killPacman() {
+        if (ghost.mode != GhostMode.Frightened && ghost.mode != GhostMode.Eaten && collisionWithPacman()) pacman.die();
+    }
+
     public void getNextMode() {
         if (modes.isEmpty()) return;
-        currenMode = modes.poll();
+        currentMode = modes.poll();
         modeDuration = durations.poll() * FPS;
         modeCounter = 0;
     }
@@ -174,6 +211,7 @@ public abstract class GhostController extends EntityController {
     }
 
     public void update() {
+        killPacman();
         updateGhostMode();
         updateGhostDirection();
         ghost.setSprite();

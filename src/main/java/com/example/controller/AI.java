@@ -1,4 +1,4 @@
-package com.example.model.entity.enemy;
+package com.example.controller;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Random;
 
 import com.example.model.entity.Pacman;
+import com.example.model.entity.enemy.Blinky;
+import com.example.model.entity.enemy.Ghost;
+import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
 import com.example.model.tile.TileType;
 

@@ -3,7 +3,6 @@ package com.example.controller;
 import java.awt.geom.Point2D;
 
 import com.example.model.entity.Pacman;
-import com.example.model.entity.enemy.AI;
 import com.example.model.entity.enemy.Blinky;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
@@ -18,6 +17,11 @@ public class BlinkyController extends GhostController {
         this.blinky = blinky;
         scatterTile = new Point2D.Double(25, -4);
         getNextMode();
+    }
+
+    @Override
+    public void setInPen() {
+        ghost.setMode(GhostMode.Spawn);
     }
 
     public Point2D.Double targetTile() {

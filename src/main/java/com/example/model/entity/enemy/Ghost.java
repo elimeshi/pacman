@@ -3,6 +3,7 @@ package com.example.model.entity.enemy;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+import com.example.controller.AI;
 import com.example.model.entity.Entity;
 import com.example.utils.*;
 
