@@ -64,6 +64,7 @@ public abstract class GhostController extends EntityController {
         if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
         ghost.setFrightened();
         frightenedCounter = 0;
+        ghost.setSpeed(Speeds.frightened);
     }
 
     public void getOutOfPen() {
@@ -77,6 +78,7 @@ public abstract class GhostController extends EntityController {
             
             if (++frightenedCounter >= frightenedDuration * FPS) {
                 ghost.setFrightenedOff();
+                ghost.setSpeed(Speeds.ghostNormal);
             } else if (frightenedDuration * FPS - frightenedCounter <= 2 * FPS) {
                 ghost.frightenedIsOver = true;
             } 
@@ -87,6 +89,7 @@ public abstract class GhostController extends EntityController {
             }
             if (collisionWithPacman()) {
                 ghost.setFrightenedOff();
+                pacman.addPoints(200);
                 ghost.setMode(GhostMode.Eaten);
                 ghost.setSpeed(Speeds.eaten);
             }

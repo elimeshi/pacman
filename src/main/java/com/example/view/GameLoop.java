@@ -37,7 +37,7 @@ public class GameLoop {
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
         keyH.setPacman(pacman);
         ghosts = new Ghost[]{
-            new Blinky(1, 1, Speeds.ghostNormal),
+            new Blinky(13.5, 11, Speeds.ghostNormal),
             new Pinky (13.5, 14, Speeds.ghostNormal),
             new Inky  (11.5, 14, Speeds.ghostNormal),
             new Clyde (15.5, 14, Speeds.ghostNormal)
@@ -102,14 +102,26 @@ public class GameLoop {
         g2.setColor(Color.WHITE);
         g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 0.6)));
         g2.drawString("Points", tileSize, (int) (cfg.WINDOW_HEIGHT - tileSize * 1.2));
-        g2.drawString(String.valueOf(controller.pacmanController.points), (int) (tileSize * 2), (int) (cfg.WINDOW_HEIGHT - tileSize * 0.3));
+        g2.drawString(String.valueOf(pacman.points), (int) (tileSize * 2), (int) (cfg.WINDOW_HEIGHT - tileSize * 0.3));
     } 
+
+    public void drawPacmanLife(Graphics2D g2) {
+        g2.setColor(Color.yellow);
+        for (int i = 0; i < pacman.life; i++) {
+            g2.fillArc(tileSize * (6 + i * 2), 
+                       (int) (cfg.WINDOW_HEIGHT - tileSize * 1.8), 
+                       (int) (tileSize * 1.6), 
+                       (int) (tileSize * 1.6), 
+                       45, 270);
+        }
+    }
 
     public void draw(Graphics2D g2) {
         drawTileMap(g2);
         drawPacman(g2);
         drawGhosts(g2);
         drawPoints(g2);
+        drawPacmanLife(g2);
     }
 
 }

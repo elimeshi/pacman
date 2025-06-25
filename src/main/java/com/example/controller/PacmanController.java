@@ -8,7 +8,6 @@ import com.example.model.tile.TileType;
 public class PacmanController extends EntityController {
 
     public Pacman pacman;
-    public int points;
 
     public PacmanController(Pacman pacman, TileMap tileMap) {
         super(pacman, tileMap);
@@ -27,8 +26,8 @@ public class PacmanController extends EntityController {
         Tile currentTile = tileMap.getTileAt(iy, ix);
 
         switch (currentTile.type) {
-            case Dot: points += 10; break;
-            case Energizer: points += 50; break;
+            case Dot: pacman.addPoints(10);; break;
+            case Energizer: pacman.addPoints(50);; break;
             default: break;
         }
 

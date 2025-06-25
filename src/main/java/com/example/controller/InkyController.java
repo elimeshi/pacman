@@ -25,10 +25,10 @@ public class InkyController extends GhostController {
             Point2D.Double blinkyTile = ai.getBlinkyTile();
             int pacmanDirection = ai.getPacmanDirection();
             switch (pacmanDirection) {
-                case 0:   pacmanTile.x += 4; break;
-                case -90: pacmanTile.y += 4; break;
-                case 90:  pacmanTile.y -= 4;
-                case 180: pacmanTile.x -= 4; break;
+                case 0:   pacmanTile.x += 2; break;
+                case -90: pacmanTile.y += 2; break;
+                case 90:  pacmanTile.y -= 2;
+                case 180: pacmanTile.x -= 2; break;
             }
             return new Point2D.Double(2 * pacmanTile.x - blinkyTile.x, 2 * pacmanTile.y - blinkyTile.y);
         }

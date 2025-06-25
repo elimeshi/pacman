@@ -10,6 +10,7 @@ public class GameController {
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
     public TileType pacmanTile;
+    public int initialDots = 254;
     public int eatenDots = 0;
 
     public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, TileMap tileMap, int FPS) {
@@ -23,12 +24,13 @@ public class GameController {
     }
 
     public void releaseGhosts() {
-        if (eatenDots > 36) return;
-        if (eatenDots >= 35) {
+        int quarterDots = initialDots / 4;
+        if (eatenDots > quarterDots * 3 + 2) return;
+        if (eatenDots >= quarterDots * 3) {
             ghostControllers[3].getOutOfPen();
-        } else if (eatenDots >= 20) {
+        } else if (eatenDots >= quarterDots * 2) {
             ghostControllers[2].getOutOfPen();
-        } else if (eatenDots >= 10) {
+        } else if (eatenDots >= quarterDots) {
             ghostControllers[1].getOutOfPen();
         }
     }
