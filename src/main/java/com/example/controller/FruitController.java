@@ -12,12 +12,32 @@ public class FruitController {
     public int fps;
     public int timerTarget;
     public int timer;
+    public double totalWeight;
 
     public FruitController(Fruit fruit, Pacman pacman, int fps) {
         this.fruit = fruit;
         this.pacman = pacman;
         this.fps = fps;
         setTimerForNextFruit();
+
+        totalWeight = 0;
+        for (FruitType type : FruitType.values()) totalWeight += type.getWeight();
+    }
+
+    public FruitType chooseRandomFruitType() {
+        double randomWeight = new Random().nextDouble() * totalWeight;
+        double currentWeight = 0;
+
+        for (FruitType type : FruitType.values()) {
+            currentWeight += type.getWeight();
+            if (currentWeight >= randomWeight) return type;
+        }
+
+        return FruitType.CHERRY;
+    }
+
+    public int getDuration(FruitType type) {
+        return (int) (fps * (7 - type.getPoints() / 300.0));
     }
 
     public void setTimerForNextFruit() {
@@ -27,7 +47,8 @@ public class FruitController {
     }
 
     public void createFruit() {
-        fruit.setNewFruit(13, 17, FruitType.CHERRY, 6 * fps);
+        FruitType type = chooseRandomFruitType();
+        fruit.setNewFruit(13, 17, type, getDuration(type));
         timer = 0;
     }
 
