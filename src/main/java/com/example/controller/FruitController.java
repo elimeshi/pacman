@@ -42,7 +42,7 @@ public class FruitController {
 
     public void setTimerForNextFruit() {
         Random random = new Random();
-        timerTarget = random.nextInt(10) * fps;
+        timerTarget = random.nextInt(10) + 5 * fps;
         timer = 0;
     }
 

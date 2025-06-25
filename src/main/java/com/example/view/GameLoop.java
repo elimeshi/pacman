@@ -8,6 +8,7 @@ import com.example.config.GameConfig;
 import com.example.controller.AI;
 import com.example.controller.GameController;
 import com.example.controller.KeyHandler;
+import com.example.model.Message;
 import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.*;
@@ -29,12 +30,14 @@ public class GameLoop {
     AI ai;
 
     int points = 0;
+    Message message;
 
     public GameLoop(GameConfig cfg, KeyHandler keyH) {
         this.cfg = cfg;
         this.keyH = keyH;
         this.tileSize = GameConfig.tileSize;
         Speeds.setSpeeds(cfg.FPS);
+        message = Message.READY;
         scale = tileSize / 3;
         tileMap = new TileMap(7);
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
@@ -58,6 +61,7 @@ public class GameLoop {
             return;
         }
 
+        message = Message.EMPTY;
         controller.update();
     }
 
@@ -110,6 +114,13 @@ public class GameLoop {
         }
     }
 
+    public void drawMessage(Graphics2D g2) {
+        if (message == Message.EMPTY) return;
+        g2.setColor(message.getColor());
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 0.9)));
+        g2.drawString(message.getMessage(), (int) (tileSize * 9.5), tileSize * 18);
+    }
+
     public void drawPoints(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 0.6)));
@@ -133,6 +144,7 @@ public class GameLoop {
         drawFruit(g2);
         drawPacman(g2);
         drawGhosts(g2);
+        drawMessage(g2);
         drawPoints(g2);
         drawPacmanLife(g2);
     }
