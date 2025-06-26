@@ -10,47 +10,47 @@ public class TileMap {
     public HashMap<Character, Tile> tiles;
 
     public TileMap(int level) {
-        loadTiles();
+        loadTiles(level);
         loadMap(level);
     }
     public static java.util.Map<Character, Tile> tileMap;
 
-    private void loadTiles() {
+    public void loadTiles(int level) {
         tiles = new HashMap<>();
         tiles.put('0', new Tile(AssetLoader.loadSprite("tiles/earth.png"), TileType.Empty));
         tiles.put('1', new Tile(AssetLoader.loadSprite("tiles/wall.png"), TileType.Wall));
-        tiles.put('■', new Tile(AssetLoader.loadSprite("tiles/walls/■.png"), TileType.Energizer));
-        tiles.put('·', new Tile(AssetLoader.loadSprite("tiles/walls/·.png"), TileType.Dot));
-        tiles.put('┌', new Tile(AssetLoader.loadSprite("tiles/walls/┌.png"), TileType.Wall));
-        tiles.put('└', new Tile(AssetLoader.loadSprite("tiles/walls/└.png"), TileType.Wall));
-        tiles.put('┐', new Tile(AssetLoader.loadSprite("tiles/walls/┐.png"), TileType.Wall));
-        tiles.put('┘', new Tile(AssetLoader.loadSprite("tiles/walls/┘.png"), TileType.Wall));
-        tiles.put('│', new Tile(AssetLoader.loadSprite("tiles/walls/│.png"), TileType.Wall));
-        tiles.put('─', new Tile(AssetLoader.loadSprite("tiles/walls/─.png"), TileType.Wall));
-        tiles.put('≡', new Tile(AssetLoader.loadSprite("tiles/walls/≡.png"), TileType.Empty));
-        tiles.put('┅', new Tile(AssetLoader.loadSprite("tiles/walls/┅.png"), TileType.Wall));
-        tiles.put('╸', new Tile(AssetLoader.loadSprite("tiles/walls/╸.png"), TileType.Wall));
-        tiles.put('╺', new Tile(AssetLoader.loadSprite("tiles/walls/╺.png"), TileType.Wall));
-        tiles.put('┏', new Tile(AssetLoader.loadSprite("tiles/walls/┏.png"), TileType.Wall));
-        tiles.put('╔', new Tile(AssetLoader.loadSprite("tiles/walls/╔.png"), TileType.Wall));
-        tiles.put('┓', new Tile(AssetLoader.loadSprite("tiles/walls/┓.png"), TileType.Wall));
-        tiles.put('╗', new Tile(AssetLoader.loadSprite("tiles/walls/╗.png"), TileType.Wall));
-        tiles.put('┗', new Tile(AssetLoader.loadSprite("tiles/walls/┗.png"), TileType.Wall));
-        tiles.put('╚', new Tile(AssetLoader.loadSprite("tiles/walls/╚.png"), TileType.Wall));
-        tiles.put('┛', new Tile(AssetLoader.loadSprite("tiles/walls/┛.png"), TileType.Wall));
-        tiles.put('╝', new Tile(AssetLoader.loadSprite("tiles/walls/╝.png"), TileType.Wall));
-        tiles.put('┡', new Tile(AssetLoader.loadSprite("tiles/walls/┡.png"), TileType.Wall));
-        tiles.put('┢', new Tile(AssetLoader.loadSprite("tiles/walls/┢.png"), TileType.Wall));
-        tiles.put('┩', new Tile(AssetLoader.loadSprite("tiles/walls/┩.png"), TileType.Wall));
-        tiles.put('┪', new Tile(AssetLoader.loadSprite("tiles/walls/┪.png"), TileType.Wall));
-        tiles.put('┱', new Tile(AssetLoader.loadSprite("tiles/walls/┱.png"), TileType.Wall));
-        tiles.put('┲', new Tile(AssetLoader.loadSprite("tiles/walls/┲.png"), TileType.Wall));
-        tiles.put('┹', new Tile(AssetLoader.loadSprite("tiles/walls/┹.png"), TileType.Wall));
-        tiles.put('┺', new Tile(AssetLoader.loadSprite("tiles/walls/┺.png"), TileType.Wall));
-        tiles.put('_', new Tile(AssetLoader.loadSprite("tiles/walls/_.png"), TileType.Wall));
-        tiles.put('[', new Tile(AssetLoader.loadSprite("tiles/walls/[.png"), TileType.Wall));
-        tiles.put('⎻', new Tile(AssetLoader.loadSprite("tiles/walls/⎻.png"), TileType.Wall));
-        tiles.put(']', new Tile(AssetLoader.loadSprite("tiles/walls/].png"), TileType.Wall));
+        tiles.put('■', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/■.png"), TileType.Energizer));
+        tiles.put('·', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/·.png"), TileType.Dot));
+        tiles.put('┌', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┌.png"), TileType.Wall));
+        tiles.put('└', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/└.png"), TileType.Wall));
+        tiles.put('┐', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┐.png"), TileType.Wall));
+        tiles.put('┘', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┘.png"), TileType.Wall));
+        tiles.put('│', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/│.png"), TileType.Wall));
+        tiles.put('─', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/─.png"), TileType.Wall));
+        tiles.put('≡', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/≡.png"), TileType.Empty));
+        tiles.put('┅', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┅.png"), TileType.Wall));
+        tiles.put('╸', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╸.png"), TileType.Wall));
+        tiles.put('╺', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╺.png"), TileType.Wall));
+        tiles.put('┏', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┏.png"), TileType.Wall));
+        tiles.put('╔', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╔.png"), TileType.Wall));
+        tiles.put('┓', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┓.png"), TileType.Wall));
+        tiles.put('╗', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╗.png"), TileType.Wall));
+        tiles.put('┗', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┗.png"), TileType.Wall));
+        tiles.put('╚', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╚.png"), TileType.Wall));
+        tiles.put('┛', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┛.png"), TileType.Wall));
+        tiles.put('╝', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/╝.png"), TileType.Wall));
+        tiles.put('┡', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┡.png"), TileType.Wall));
+        tiles.put('┢', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┢.png"), TileType.Wall));
+        tiles.put('┩', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┩.png"), TileType.Wall));
+        tiles.put('┪', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┪.png"), TileType.Wall));
+        tiles.put('┱', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┱.png"), TileType.Wall));
+        tiles.put('┲', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┲.png"), TileType.Wall));
+        tiles.put('┹', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┹.png"), TileType.Wall));
+        tiles.put('┺', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/┺.png"), TileType.Wall));
+        tiles.put('_', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/_.png"), TileType.Wall));
+        tiles.put('[', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/[.png"), TileType.Wall));
+        tiles.put('⎻', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/⎻.png"), TileType.Wall));
+        tiles.put(']', new Tile(AssetLoader.loadSprite("tiles/walls/level" + level + "/].png"), TileType.Wall));
     }
 
     public void loadMap(int level) {

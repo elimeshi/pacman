@@ -26,8 +26,8 @@ public class PacmanController extends EntityController {
         Tile currentTile = tileMap.getTileAt(iy, ix);
 
         switch (currentTile.type) {
-            case Dot: pacman.addPoints(10);; break;
-            case Energizer: pacman.addPoints(50);; break;
+            case Dot: pacman.addPoints(10); break;
+            case Energizer: pacman.addPoints(50); break;
             default: break;
         }
 

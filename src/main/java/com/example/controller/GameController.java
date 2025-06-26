@@ -13,8 +13,9 @@ public class GameController {
     public GhostController[] ghostControllers;
     public FruitController fruitController;
     public TileType pacmanTile;
+    public boolean victory = false;
     public int fps;
-    public int initialDots = 254;
+    public int initialDots = 244;
     public int quarterDots = initialDots / 4;
     public int eatenDots = 0;
     public int ghostTimer = 0;
@@ -30,6 +31,14 @@ public class GameController {
             new ClydeController(clyde, pacman, ai, FPS, tileMap),
         };
         fruitController = new FruitController(fruit, pacman, FPS);
+    }
+
+    public void restart() {
+        pacman.restart();
+        for (GhostController controller : ghostControllers) controller.restart();
+        eatenDots = 0;
+        ghostTimer = 0;
+        victory = false;
     }
 
     public void checkIfPacmanIsDead() {
@@ -49,11 +58,18 @@ public class GameController {
         }
     }
 
+    public void checkForLevelComplete() {
+        if (eatenDots >= initialDots) victory = true;
+    }
+
     public void update() {
         pacmanController.update();
         pacmanTile = TileType.Empty;
         if (pacmanController.isOnTile()) pacmanTile = pacmanController.collectPellet();
         if (pacmanTile == TileType.Dot) eatenDots++;
+        checkForLevelComplete();
+        if (victory) return;
+
         releaseGhosts();
         for (GhostController controller : ghostControllers) {
             if (pacmanTile == TileType.Energizer) controller.setFrightened();
