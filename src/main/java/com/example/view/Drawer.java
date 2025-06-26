@@ -84,7 +84,7 @@ public class Drawer {
     }
 
     public void drawMessage(Graphics2D g2) {
-        if (message == Message.EMPTY) return;
+        if (message.getMessage().isEmpty()) return;
         g2.setColor(message.getColor());
         g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 0.9)));
         g2.drawString(message.getMessage(), (int) (tileSize * 9.5), tileSize * 18);
@@ -108,7 +108,7 @@ public class Drawer {
         }
     }
 
-    public void draw(Graphics2D g2) {
+    public void drawGame(Graphics2D g2) {
         drawTileMap(g2);
         drawFruit(g2);
         drawPacman(g2);
@@ -116,5 +116,18 @@ public class Drawer {
         drawMessage(g2);
         drawPoints(g2);
         drawPacmanLife(g2);
+    }
+
+    public void draw(Graphics2D g2, GameState state) {
+        switch (state) {
+            case START_MENU:
+                
+                break;
+            case PAUSED:
+            case RUN:
+                drawGame(g2); break;
+            case POST_MENU:
+                break;
+        }
     }
 }

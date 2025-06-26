@@ -34,11 +34,9 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
         repaint();
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        gameLoop.startGame();
+
+
         double drawInterval = 1000000000 / cfg.FPS;
         double delta = 0;
         long currentTime, lastTime = System.nanoTime();
