@@ -7,6 +7,7 @@ import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
+import com.example.model.entity.enemy.Pinky;
 import com.example.model.tile.TileMap;
 
 public abstract class GhostController extends EntityController {
@@ -17,6 +18,7 @@ public abstract class GhostController extends EntityController {
     Queue<GhostMode> modes;
     Queue<Integer> durations;
     GhostMode currentMode;
+    boolean restarted;
     int FPS;
     int modeDuration;
     int modeCounter;
@@ -41,6 +43,7 @@ public abstract class GhostController extends EntityController {
         frightenedCounter = -1;
         inPenCounter = -1;
         currentMode = null;
+        restarted = false;
         this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
@@ -62,6 +65,13 @@ public abstract class GhostController extends EntityController {
                 ghost.y >= 11 && ghost.y <= 15);
     }
 
+    public void restart() {
+        ghost.restart();
+        restarted = true;
+        setInPen();
+        inPenCounter = -1;
+    }
+
     public void setFrightened() {
         if (ghost.mode == GhostMode.Eaten) return;
         if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
@@ -71,7 +81,8 @@ public abstract class GhostController extends EntityController {
     }
 
     public void getOutOfPen() {
-        if (currentMode != null) return;
+        if (currentMode != null && !restarted) return;
+        restarted = false;
         getNextMode();
         ghost.setMode(GhostMode.Spawn);
     }
@@ -79,7 +90,7 @@ public abstract class GhostController extends EntityController {
     public void setInPen() {
         inPenCounter = 0;
         ghost.setMode(GhostMode.InPen);
-        ghost.setDirection(90);
+        ghost.setDirection(ghost instanceof Pinky ? -90 : 90);
     }
 
     public void updateFrightened() {
@@ -190,7 +201,9 @@ public abstract class GhostController extends EntityController {
     }
 
     public void killPacman() {
-        if (ghost.mode != GhostMode.Frightened && ghost.mode != GhostMode.Eaten && collisionWithPacman()) pacman.die();
+        if (ghost.mode != GhostMode.Frightened && ghost.mode != GhostMode.Eaten && collisionWithPacman()) {
+            pacman.die();
+        } 
     }
 
     public void getNextMode() {

@@ -6,6 +6,7 @@ public class Pacman extends Entity {
     public int life = 3;
     public int points = 0;
     public boolean dead = false;
+    public boolean deadNow = false;
     public boolean gameOver = false;
     public int mouthDegrees = 0;
     private boolean isMouthOpening = true;
@@ -53,5 +54,6 @@ public class Pacman extends Entity {
         direction = 90;
         mouthDegrees = 25;
         dead = true;
+        deadNow = true;
     }
 }

@@ -21,6 +21,13 @@ public class Ghost extends Entity {
 
     public Ghost(double x, double y, double speed) {
         super(x, y, speed);
+        setSprite();
+    }
+
+    public void restart() {
+        x = regenPos.x;
+        y = regenPos.y;
+        direction = 90;
     }
 
     public void updateFrightenedSpriteIdx() {

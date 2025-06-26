@@ -8,14 +8,20 @@ import com.example.model.tile.TileType;
 
 public class GameController {
 
+    public Pacman pacman;
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
     public FruitController fruitController;
     public TileType pacmanTile;
+    public int fps;
     public int initialDots = 254;
+    public int quarterDots = initialDots / 4;
     public int eatenDots = 0;
+    public int ghostTimer = 0;
 
     public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, Fruit fruit, TileMap tileMap, int FPS) {
+        this.pacman = pacman;
+        this.fps = FPS;
         pacmanController = new PacmanController(pacman, tileMap);
         ghostControllers = new GhostController[]{
             new BlinkyController(blinky, pacman, ai, FPS, tileMap),
@@ -26,14 +32,19 @@ public class GameController {
         fruitController = new FruitController(fruit, pacman, FPS);
     }
 
+    public void checkIfPacmanIsDead() {
+        if (!pacman.deadNow) return; 
+        ghostTimer = 0;
+        for (GhostController controller : ghostControllers) controller.restart();
+        pacman.deadNow = false;
+    }
+
     public void releaseGhosts() {
-        int quarterDots = initialDots / 4;
-        if (eatenDots > quarterDots * 3 + 2) return;
-        if (eatenDots >= quarterDots * 3) {
+        if (++ghostTimer > 9 * fps && eatenDots >= quarterDots * 3) {
             ghostControllers[3].getOutOfPen();
-        } else if (eatenDots >= quarterDots * 2) {
+        } else if (ghostTimer > 6 * fps && eatenDots >= quarterDots * 2) {
             ghostControllers[2].getOutOfPen();
-        } else if (eatenDots >= quarterDots) {
+        } else if (ghostTimer > 3 * fps && eatenDots >= quarterDots) {
             ghostControllers[1].getOutOfPen();
         }
     }
@@ -48,6 +59,7 @@ public class GameController {
             if (pacmanTile == TileType.Energizer) controller.setFrightened();
             controller.update();
         }
+        checkIfPacmanIsDead();
         fruitController.update();
     }
 }
