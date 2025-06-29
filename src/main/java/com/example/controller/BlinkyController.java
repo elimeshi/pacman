@@ -19,6 +19,11 @@ public class BlinkyController extends GhostController {
         getNextMode();
     }
 
+    public void initialize() {
+        super.initialize();
+        getNextMode();
+    }
+
     @Override
     public void setInPen() {
         ghost.setMode(GhostMode.Spawn);

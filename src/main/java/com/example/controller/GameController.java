@@ -15,7 +15,7 @@ public class GameController {
     public TileType pacmanTile;
     public boolean victory = false;
     public int fps;
-    public int initialDots = 24;
+    public int initialDots = 244;
     public int quarterDots = initialDots / 4;
     public int eatenDots = 0;
     public int ghostTimer = 0;
@@ -31,6 +31,22 @@ public class GameController {
             new ClydeController(clyde, pacman, ai, FPS, tileMap),
         };
         fruitController = new FruitController(fruit, pacman, FPS);
+    }
+
+    public void initializeNewGame() {
+        pacman.initialize();
+        for (GhostController controller : ghostControllers) controller.initialize();
+        eatenDots = 0;
+        ghostTimer = 0;
+        victory = false;
+    }
+
+    public void initializeNextLevel() {
+        pacman.restart();
+        for (GhostController controller : ghostControllers) controller.initialize();
+        eatenDots = 0;
+        ghostTimer = 0;
+        victory = false;
     }
 
     public void restart() {

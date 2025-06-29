@@ -1,10 +1,9 @@
 package com.example.controller;
 
-import java.util.Random;
-
 import com.example.model.entity.Pacman;
 import com.example.model.fruit.Fruit;
 import com.example.model.fruit.FruitType;
+import com.example.view.GameLoop;
 
 public class FruitController {
     public Pacman pacman;
@@ -25,7 +24,7 @@ public class FruitController {
     }
 
     public FruitType chooseRandomFruitType() {
-        double randomWeight = new Random().nextDouble() * totalWeight;
+        double randomWeight = GameLoop.random.nextDouble() * totalWeight;
         double currentWeight = 0;
 
         for (FruitType type : FruitType.values()) {
@@ -41,8 +40,7 @@ public class FruitController {
     }
 
     public void setTimerForNextFruit() {
-        Random random = new Random();
-        timerTarget = random.nextInt(10) + 5 * fps;
+        timerTarget = GameLoop.random.nextInt(10) + 5 * fps;
         timer = 0;
     }
 

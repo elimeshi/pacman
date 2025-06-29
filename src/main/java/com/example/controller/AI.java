@@ -3,7 +3,6 @@ package com.example.controller;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Blinky;
@@ -11,6 +10,7 @@ import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
 import com.example.model.tile.TileType;
+import com.example.view.GameLoop;
 
 public class AI {
 
@@ -137,7 +137,6 @@ public class AI {
         if (ghost.isInPen() && ghost.mode != GhostMode.Frightened) return getDirectionInPen(ghost);
         updateGlobalVariables(ghost);
         int[] directions = getPossibleDirections(tileMap);
-        Random r = new Random(); 
-        return directions[r.nextInt(directions.length)];
+        return directions[GameLoop.random.nextInt(directions.length)];
     }
 }

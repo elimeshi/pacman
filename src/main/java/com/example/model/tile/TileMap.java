@@ -1,10 +1,11 @@
 package com.example.model.tile;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import com.example.utils.AssetLoader;
 
-public class TileMap {
+public class TileMap implements Serializable {
     public int size;
     public char[][] map;
     public HashMap<Character, Tile> tiles;

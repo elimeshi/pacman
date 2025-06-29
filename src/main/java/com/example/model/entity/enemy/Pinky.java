@@ -7,7 +7,12 @@ public class Pinky extends Ghost {
     public Pinky(double x, double y, double speed) {
         super(x, y, speed);
         mode = GhostMode.InPen;
-        direction = 90;
+        direction = -90;
         regenPos = new Point2D.Double(13.5, 14);
+    }
+
+    public void initialize() {
+        super.initialize();
+        direction = -90;
     }
 }

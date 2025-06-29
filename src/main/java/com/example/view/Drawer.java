@@ -1,6 +1,7 @@
 package com.example.view;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -23,15 +24,57 @@ public class Drawer {
     int tileSize;
     int scale;
 
-    public Drawer(GameConfig cfg, TileMap tileMap, Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int tileSize, int scale) {
+    public Drawer(GameConfig cfg, TileMap tileMap, Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int scale) {
         this.cfg = cfg;
         this.tileMap = tileMap;
         this.pacman = pacman; 
         this.ghosts = ghosts;
         this.fruit = fruit;
         this.message = message;
-        this.tileSize = tileSize;
+        this.tileSize = cfg.tileSize;
         this.scale = scale;
+    }
+
+    public int getXForCenteredText(String text, Graphics2D g2) {
+        return (cfg.WINDOW_WIDTH - (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth()) / 2;
+    }
+
+    public void drawStartMenu(Graphics2D g2, int commandNum) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 3)));
+        String text = "Pacman";
+        g2.drawString(text, getXForCenteredText(text, g2), 100);
+
+        int x, y;
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, (float) (tileSize)));
+        String[] options = new String[]{"New game", "Recorded games", "Manage control keys", "Quit"};
+        for (int i = 0; i < options.length; i++) {
+            x = getXForCenteredText(options[i], g2);
+            y = 300 + i * tileSize * 2;
+            g2.drawString(options[i], x, y);
+            if (commandNum == i) {
+                g2.drawString(">", x - tileSize * 2, y);
+            }
+        }
+    }
+
+    public void drawPostMenu(Graphics2D g2, int commandNum) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 3)));
+        String text = message.getMessage();
+        g2.drawString(text, getXForCenteredText(text, g2), 100);
+
+        int x, y;
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, (float) (tileSize)));
+        String[] options = new String[]{"Save game", "New game", "Leaderboards", "Quit"};
+        for (int i = 0; i < options.length; i++) {
+            x = getXForCenteredText(options[i], g2);
+            y = 300 + i * tileSize * 2;
+            g2.drawString(options[i], x, y);
+            if (commandNum == i) {
+                g2.drawString(">", x - tileSize * 2, y);
+            }
+        }
     }
 
     public void drawTileMap(Graphics2D g2) {
@@ -87,7 +130,7 @@ public class Drawer {
         if (message.getMessage().isEmpty()) return;
         g2.setColor(message.getColor());
         g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 0.9)));
-        g2.drawString(message.getMessage(), (int) (tileSize * 9.5), tileSize * 18);
+        g2.drawString(message.getMessage(), getXForCenteredText(message.getMessage(), g2), tileSize * 18);
     }
 
     public void drawPoints(Graphics2D g2) {
@@ -118,16 +161,18 @@ public class Drawer {
         drawPacmanLife(g2);
     }
 
-    public void draw(Graphics2D g2, GameState state) {
+    public void draw(Graphics2D g2, GameState state, int commandNum) {
         switch (state) {
             case START_MENU:
-                
-                break;
+                drawStartMenu(g2, commandNum); break;
+            
+            case READY:
             case PAUSED:
             case RUN:
                 drawGame(g2); break;
+            
             case POST_MENU:
-                break;
+                drawPostMenu(g2, commandNum); break;
         }
     }
 }

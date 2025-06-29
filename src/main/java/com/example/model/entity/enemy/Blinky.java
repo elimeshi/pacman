@@ -9,4 +9,9 @@ public class Blinky extends Ghost {
         mode = GhostMode.Scatter;
         regenPos = new Point2D.Double(13.5, 14);
     }
+
+    public void initialize() {
+        super.initialize();
+        y = 11;
+    }
 }

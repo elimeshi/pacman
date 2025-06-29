@@ -15,6 +15,7 @@ public abstract class GhostController extends EntityController {
     Ghost ghost;
     Pacman pacman;
     AI ai;
+    GhostModeSchedule profile;
     Queue<GhostMode> modes;
     Queue<Integer> durations;
     GhostMode currentMode;
@@ -35,7 +36,7 @@ public abstract class GhostController extends EntityController {
         this.pacman = pacman;
         this.ai = ai;
         this.FPS = FPS;
-        GhostModeSchedule profile = new GhostModeSchedule();
+        profile = new GhostModeSchedule();
         modes = profile.modes;
         durations = profile.durations;
         frightenedDuration = profile.frightenedDuration * FPS;
@@ -45,6 +46,19 @@ public abstract class GhostController extends EntityController {
         currentMode = null;
         restarted = false;
         this.ghostPenGate = new Point2D.Double(13, 11);
+    }
+
+    public void initialize() {
+        ghost.initialize();
+        profile = new GhostModeSchedule();
+        modes = profile.modes;
+        durations = profile.durations;
+        frightenedDuration = profile.frightenedDuration * FPS;
+        inPenDuration = profile.inPenAfterEatenDuration * FPS;
+        frightenedCounter = -1;
+        inPenCounter = -1;
+        currentMode = null;
+        restarted = false;
     }
 
     public Point2D.Double getPacmanTile() {

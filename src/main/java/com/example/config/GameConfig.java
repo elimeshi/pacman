@@ -1,7 +1,7 @@
 package com.example.config;
 
 public class GameConfig {
-    public static int tileSize = 30;
+    public int tileSize = 30;
     public int tilesInCol = 31;                       // edit me
     public int tilesInRow = 28;                       // edit me
     public int WINDOW_WIDTH = tilesInRow * tileSize;

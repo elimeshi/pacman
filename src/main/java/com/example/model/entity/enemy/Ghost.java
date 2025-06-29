@@ -24,6 +24,17 @@ public class Ghost extends Entity {
         setSprite();
     }
 
+    public void initialize() {
+        restart();
+        frightenedIsOver = false;
+        spriteIdx = 0;
+        spriteCounter = 0;
+        frightenedCounter = 0;
+        frightenedSpriteIdx = 0;
+        frightenedSpriteCounter = 0;
+        direction = 90;
+    }
+
     public void restart() {
         x = regenPos.x;
         y = regenPos.y;

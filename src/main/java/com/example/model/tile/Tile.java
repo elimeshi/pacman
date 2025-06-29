@@ -1,8 +1,9 @@
 package com.example.model.tile;
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
-public class Tile {
+public class Tile implements Serializable {
     public TileType type;
     public BufferedImage image;
 

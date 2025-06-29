@@ -17,6 +17,13 @@ public class Pacman extends Entity {
         nextDirection = 180;
     }
 
+    public void initialize() {
+        restart();
+        life = 3;
+        points = 0;
+        gameOver = false;
+    }
+
     public void addPoints(int num) {
         points += num;
     }
@@ -28,6 +35,7 @@ public class Pacman extends Entity {
         direction = 180;
         nextDirection = 180;
         mouthDegrees = 0;
+        isMouthOpening = true;
     }
     
     public void updateMouth() {
