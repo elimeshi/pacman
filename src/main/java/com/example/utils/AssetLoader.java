@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.Clip;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,15 @@ public class AssetLoader {
             return font;
         } catch (Exception e) {
             throw new RuntimeException("Couldn't load sprite: " + fontFileName + ".ttf", e);
+        }
+    }
+    
+
+    public static Clip loadClip(String fileName) {
+        try {
+            return ResourceUtil.getResourceAsClip("/music/" + fileName + ".wav");
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't load sprite: " + fileName + ".wav", e);
         }
     }
 }

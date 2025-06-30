@@ -7,13 +7,14 @@ import com.example.model.entity.enemy.Blinky;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
+import com.example.utils.SoundManager;
 
 public class BlinkyController extends GhostController {
 
     Ghost blinky;
     
-    public BlinkyController(Blinky blinky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
-        super(blinky, pacman, ai, FPS, tileMap);
+    public BlinkyController(Blinky blinky, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
+        super(blinky, pacman, ai, FPS, tileMap, soundManager);
         this.blinky = blinky;
         scatterTile = new Point2D.Double(25, -4);
         getNextMode();

@@ -5,9 +5,11 @@ import com.example.model.entity.enemy.*;
 import com.example.model.fruit.Fruit;
 import com.example.model.tile.TileMap;
 import com.example.model.tile.TileType;
+import com.example.utils.SoundManager;
 
 public class GameController {
 
+    public SoundManager soundManager;
     public Pacman pacman;
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
@@ -20,17 +22,18 @@ public class GameController {
     public int eatenDots = 0;
     public int ghostTimer = 0;
 
-    public GameController(Pacman pacman, Blinky blinky, Pinky pinky, Inky inky, Clyde clyde, AI ai, Fruit fruit, TileMap tileMap, int FPS) {
+    public GameController(Pacman pacman, Ghost[] ghosts, AI ai, Fruit fruit, TileMap tileMap, int FPS, SoundManager soundManager) {
         this.pacman = pacman;
         this.fps = FPS;
         pacmanController = new PacmanController(pacman, tileMap);
         ghostControllers = new GhostController[]{
-            new BlinkyController(blinky, pacman, ai, FPS, tileMap),
-            new PinkyController(pinky, pacman, ai, FPS, tileMap),
-            new InkyController(inky, pacman, ai, FPS, tileMap),
-            new ClydeController(clyde, pacman, ai, FPS, tileMap),
+            new BlinkyController((Blinky) ghosts[0], pacman, ai, FPS, tileMap, soundManager),
+            new PinkyController((Pinky) ghosts[1], pacman, ai, FPS, tileMap, soundManager),
+            new InkyController((Inky) ghosts[2], pacman, ai, FPS, tileMap, soundManager),
+            new ClydeController((Clyde) ghosts[3], pacman, ai, FPS, tileMap, soundManager),
         };
-        fruitController = new FruitController(fruit, pacman, FPS);
+        fruitController = new FruitController(fruit, pacman, FPS, soundManager);
+        this.soundManager = soundManager;
     }
 
     public void initializeNewGame() {
@@ -57,8 +60,7 @@ public class GameController {
         victory = false;
     }
 
-    public void checkIfPacmanIsDead() {
-        if (!pacman.deadNow) return; 
+    public void pacmanIsDead() {
         ghostTimer = 0;
         for (GhostController controller : ghostControllers) controller.restart();
         pacman.deadNow = false;
@@ -82,7 +84,12 @@ public class GameController {
         pacmanController.update();
         pacmanTile = TileType.Empty;
         if (pacmanController.isOnTile()) pacmanTile = pacmanController.collectPellet();
-        if (pacmanTile == TileType.Dot) eatenDots++;
+        if (pacmanTile == TileType.Dot) {
+            eatenDots++;
+            soundManager.play("coin");
+        } else if (pacmanTile == TileType.Energizer) {
+            soundManager.play("energizer");
+        }
         checkForLevelComplete();
         if (victory) return;
 
@@ -91,7 +98,6 @@ public class GameController {
             if (pacmanTile == TileType.Energizer) controller.setFrightened();
             controller.update();
         }
-        checkIfPacmanIsDead();
         fruitController.update();
     }
 }

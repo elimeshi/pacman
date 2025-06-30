@@ -9,6 +9,7 @@ import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.entity.enemy.Pinky;
 import com.example.model.tile.TileMap;
+import com.example.utils.SoundManager;
 
 public abstract class GhostController extends EntityController {
 
@@ -20,6 +21,7 @@ public abstract class GhostController extends EntityController {
     Queue<Integer> durations;
     GhostMode currentMode;
     boolean restarted;
+    SoundManager soundManager;
     int FPS;
     int modeDuration;
     int modeCounter;
@@ -30,7 +32,7 @@ public abstract class GhostController extends EntityController {
     Point2D.Double scatterTile;
     Point2D.Double ghostPenGate;
 
-    public GhostController(Ghost ghost, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
+    public GhostController(Ghost ghost, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
         super(ghost, tileMap);
         this.ghost = ghost;
         this.pacman = pacman;
@@ -46,6 +48,7 @@ public abstract class GhostController extends EntityController {
         currentMode = null;
         restarted = false;
         this.ghostPenGate = new Point2D.Double(13, 11);
+        this.soundManager = soundManager;
     }
 
     public void initialize() {
@@ -123,6 +126,7 @@ public abstract class GhostController extends EntityController {
             ghost.setMode(currentMode); return;
         }
         if (collisionWithPacman()) {
+            soundManager.play("ghost eaten");
             ghost.setFrightenedOff();
             pacman.addPoints(200);
             ghost.setMode(GhostMode.Eaten);

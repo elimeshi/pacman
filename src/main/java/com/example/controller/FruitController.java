@@ -3,6 +3,7 @@ package com.example.controller;
 import com.example.model.entity.Pacman;
 import com.example.model.fruit.Fruit;
 import com.example.model.fruit.FruitType;
+import com.example.utils.SoundManager;
 import com.example.view.GameLoop;
 
 public class FruitController {
@@ -12,11 +13,13 @@ public class FruitController {
     public int timerTarget;
     public int timer;
     public double totalWeight;
+    public SoundManager soundManager;
 
-    public FruitController(Fruit fruit, Pacman pacman, int fps) {
+    public FruitController(Fruit fruit, Pacman pacman, int fps, SoundManager soundManager) {
         this.fruit = fruit;
         this.pacman = pacman;
         this.fps = fps;
+        this.soundManager = soundManager;
         setTimerForNextFruit();
 
         totalWeight = 0;
@@ -58,6 +61,7 @@ public class FruitController {
     public void eatFruit() {
         removeFruit();
         pacman.addPoints(fruit.type.getPoints());
+        soundManager.play("fruit eaten");
     }
 
     public boolean collisionWithPacman() {

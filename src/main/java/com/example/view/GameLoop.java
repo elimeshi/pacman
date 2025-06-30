@@ -15,6 +15,7 @@ import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.*;
 import com.example.model.fruit.Fruit;
 import com.example.model.tile.TileMap;
+import com.example.utils.SoundManager;
 
 public class GameLoop {
 
@@ -40,6 +41,7 @@ public class GameLoop {
 
     int frame = 0;
     public GameLogger gameLogger;
+    SoundManager soundManager;
 
     public GameLoop(GameConfig cfg, KeyHandler keyH) {
         this.cfg = cfg;
@@ -52,37 +54,32 @@ public class GameLoop {
         scale = tileSize / 3;
         tileMap = new TileMap(1);
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
+        soundManager = new SoundManager();
+        soundManager.play("pick");
         keyH.setPacman(pacman);
         keyH.setGameLoop(this);
+        keyH.setSoundManager(soundManager);
         ghosts = new Ghost[]{
             new Blinky(13.5, 11, Speeds.ghostNormal),
             new Pinky (13.5, 14, Speeds.ghostNormal),
             new Inky  (11.5, 14, Speeds.ghostNormal),
             new Clyde (15.5, 14, Speeds.ghostNormal)
         };
-        System.out.println(ghosts[1].direction);
         ai = new AI(pacman, (Blinky) ghosts[0], tileMap);
         fruit = new Fruit();
-        controller = new GameController(pacman, (Blinky) ghosts[0], (Pinky) ghosts[1], (Inky) ghosts[2], (Clyde) ghosts[3], ai, fruit, tileMap, cfg.FPS);
+        
+        controller = new GameController(pacman, ghosts, ai, fruit, tileMap, cfg.FPS, soundManager);
         drawer = new Drawer(cfg, tileMap, pacman, ghosts, fruit, message, scale);
         
         gameLogger = new GameLogger(seed);
+        
     }
 
     public void runMenuCommand() {
         if (gameState == GameState.START_MENU) {
             switch (commandNum) {
                 case 0:
-                    System.out.println(ghosts[1].direction);
-                    gameState = GameState.READY;
-                    message.setMessage("READY");
-                    Timer startGameTimer = new Timer(3000, e -> { 
-                            frame = 0; 
-                            gameState = GameState.RUN; 
-                            message.setMessage("EMPTY"); 
-                    });
-                    startGameTimer.setRepeats(false);
-                    startGameTimer.start();
+                    startGame();
                     break;
                 case 1:
                     break;
@@ -102,15 +99,7 @@ public class GameLoop {
                     tileMap.loadMap(level);
                     tileMap.loadTiles(level);
                     controller.initializeNewGame();
-                    gameState = GameState.READY;
-                    message.setMessage("READY");
-                    Timer startGameTimer = new Timer(3000, e -> { 
-                            frame = 0; 
-                            gameState = GameState.RUN; 
-                            message.setMessage("EMPTY"); 
-                    });
-                    startGameTimer.setRepeats(false);
-                    startGameTimer.start();
+                    startGame();
                     break;
                 case 2:
                     break;
@@ -120,6 +109,20 @@ public class GameLoop {
                     break;
             }
         }
+    }
+
+    public void startGame() {
+        gameState = GameState.READY;
+        message.setMessage("READY");
+        soundManager.play("pacman intro");
+        Timer startGameTimer = new Timer(5000, e -> { 
+                frame = 0; 
+                gameState = GameState.RUN; 
+                message.setMessage("EMPTY"); 
+                soundManager.loopStart("background");
+        });
+        startGameTimer.setRepeats(false);
+        startGameTimer.start();
     }
 
     public void nextLevel() {
@@ -154,7 +157,18 @@ public class GameLoop {
             }
         } 
 
+        if (pacman.deadNow) {
+            System.out.println("dead now");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.pacmanIsDead();
+        }
+
         if (pacman.dead) {
+            
             pacman.updateDeath();
             if (pacman.gameOver) message.setMessage("GAME_OVER"); 
             return;

@@ -7,13 +7,14 @@ import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.entity.enemy.Pinky;
 import com.example.model.tile.TileMap;
+import com.example.utils.SoundManager;
 
 public class PinkyController extends GhostController {
 
     Ghost pinky;
 
-    public PinkyController(Pinky pinky, Pacman pacman, AI ai, int FPS, TileMap tileMap) {
-        super(pinky, pacman, ai, FPS, tileMap);
+    public PinkyController(Pinky pinky, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
+        super(pinky, pacman, ai, FPS, tileMap, soundManager);
         this.pinky = pinky;
         scatterTile = new Point2D.Double(2, -4);
     }

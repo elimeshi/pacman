@@ -43,14 +43,14 @@ public class Drawer {
         g2.setColor(Color.WHITE);
         g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 3)));
         String text = "Pacman";
-        g2.drawString(text, getXForCenteredText(text, g2), 100);
+        g2.drawString(text, getXForCenteredText(text, g2), 200);
 
         int x, y;
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, (float) (tileSize)));
         String[] options = new String[]{"New game", "Recorded games", "Manage control keys", "Quit"};
         for (int i = 0; i < options.length; i++) {
             x = getXForCenteredText(options[i], g2);
-            y = 300 + i * tileSize * 2;
+            y = 400 + i * tileSize * 2;
             g2.drawString(options[i], x, y);
             if (commandNum == i) {
                 g2.drawString(">", x - tileSize * 2, y);

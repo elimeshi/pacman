@@ -40,7 +40,6 @@ public class Entity {
     public double snapIfClose(double pos) {
         double threshold = speed / 2.0 + EPSILON;
         double nearest = this instanceof Ghost && isInPen() ? snapToHalf(pos) : Math.round(pos);
-        // if (this instanceof Pacman) System.out.println(pos + " - " + nearest + ", " + threshold);
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 

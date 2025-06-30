@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import com.example.model.entity.Pacman;
+import com.example.utils.SoundManager;
 import com.example.view.GameLoop;
 import com.example.view.GameState;
 
@@ -11,6 +12,11 @@ public class KeyHandler implements KeyListener {
 
     public Pacman pacman;
     public GameLoop gameLoop;
+    public SoundManager soundManager;
+
+    public void setSoundManager(SoundManager soundManager) {
+        this.soundManager = soundManager;
+    }
 
     public void setPacman(Pacman pacman) { 
         this.pacman = pacman;
@@ -27,6 +33,7 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         if (gameLoop.gameState == GameState.START_MENU || gameLoop.gameState == GameState.POST_MENU) {
+            soundManager.play("pick");
             switch (code) {
                 case KeyEvent.VK_UP:
                     gameLoop.commandNum = (gameLoop.commandNum + 3) % 4;
