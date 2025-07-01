@@ -2,7 +2,7 @@ package com.example.view;
 
 public enum GameState {
     START_MENU,
-    READY,
+    TRANSIENT_PAUSE,
     PAUSED,
     RUN,
     POST_MENU

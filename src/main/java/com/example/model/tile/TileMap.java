@@ -67,7 +67,9 @@ public class TileMap implements Serializable {
     }
 
     public Tile getTileAt(int row, int col) {
-        return tiles.get(map[row][col]);
+        Tile t = tiles.get(map[row][col]);
+        if (t == null) System.out.println("no tile found for " + map[row][col] + ", " + row+ " " + col);
+        return t;
     }
 
     public void setTileAt(int row, int col, char tile) {

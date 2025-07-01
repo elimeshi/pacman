@@ -96,6 +96,7 @@ public class GameLoop {
                     gameLogger.saveToFile();
                     break;
                 case 1:
+                    level = 1;
                     tileMap.loadMap(level);
                     tileMap.loadTiles(level);
                     controller.initializeNewGame();
@@ -112,7 +113,7 @@ public class GameLoop {
     }
 
     public void startGame() {
-        gameState = GameState.READY;
+        gameState = GameState.TRANSIENT_PAUSE;
         message.setMessage("READY");
         soundManager.play("pacman intro");
         Timer startGameTimer = new Timer(5000, e -> { 
@@ -148,27 +149,30 @@ public class GameLoop {
 
     public void updateGame() {
         if (pacman.gameOver || controller.victory) {
-            try {
+            soundManager.stop("background");
+            gameState = GameState.TRANSIENT_PAUSE;
+            Timer timer = new Timer(3000, e -> { 
                 gameState = GameState.POST_MENU;
-                Thread.sleep(3000);
-                return;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            });
+            timer.setRepeats(false);
+            timer.start();
+            soundManager.play(controller.victory ? "victory" : "game over");
+            return;
         } 
 
         if (pacman.deadNow) {
             System.out.println("dead now");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            gameState = GameState.TRANSIENT_PAUSE;
+            Timer timer = new Timer(1000, e -> { 
+                gameState = GameState.RUN;
+                controller.pacmanIsDead();
+            });
+            timer.setRepeats(false);
+            timer.start();
             controller.pacmanIsDead();
         }
 
         if (pacman.dead) {
-            
             pacman.updateDeath();
             if (pacman.gameOver) message.setMessage("GAME_OVER"); 
             return;
@@ -182,9 +186,8 @@ public class GameLoop {
         switch (gameState) {
             case START_MENU:
                 break;
-            case READY:
-                break;
             case PAUSED:
+            case TRANSIENT_PAUSE:
                 break;
             case RUN:
                 updateGame();

@@ -59,17 +59,18 @@ public class Drawer {
     }
 
     public void drawPostMenu(Graphics2D g2, int commandNum) {
-        g2.setColor(Color.WHITE);
-        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 3)));
+        g2.setColor(message.getColor());
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize * 2)));
         String text = message.getMessage();
-        g2.drawString(text, getXForCenteredText(text, g2), 100);
+        g2.drawString(text, getXForCenteredText(text, g2), 200);
 
         int x, y;
+        g2.setColor(Color.WHITE);
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, (float) (tileSize)));
         String[] options = new String[]{"Save game", "New game", "Leaderboards", "Quit"};
         for (int i = 0; i < options.length; i++) {
             x = getXForCenteredText(options[i], g2);
-            y = 300 + i * tileSize * 2;
+            y = 400 + i * tileSize * 2;
             g2.drawString(options[i], x, y);
             if (commandNum == i) {
                 g2.drawString(">", x - tileSize * 2, y);
@@ -166,7 +167,7 @@ public class Drawer {
             case START_MENU:
                 drawStartMenu(g2, commandNum); break;
             
-            case READY:
+            case TRANSIENT_PAUSE:
             case PAUSED:
             case RUN:
                 drawGame(g2); break;

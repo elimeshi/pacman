@@ -26,6 +26,7 @@ public class Ghost extends Entity {
 
     public void initialize() {
         restart();
+        mode = GhostMode.InPen;
         frightenedIsOver = false;
         spriteIdx = 0;
         spriteCounter = 0;

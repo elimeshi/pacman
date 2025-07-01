@@ -17,7 +17,7 @@ public class GameController {
     public TileType pacmanTile;
     public boolean victory = false;
     public int fps;
-    public int initialDots = 244;
+    public int initialDots = 24;
     public int quarterDots = initialDots / 4;
     public int eatenDots = 0;
     public int ghostTimer = 0;

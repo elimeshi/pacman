@@ -12,6 +12,8 @@ public class Blinky extends Ghost {
 
     public void initialize() {
         super.initialize();
+        mode = GhostMode.Scatter;
         y = 11;
+        direction = 0;
     }
 }
