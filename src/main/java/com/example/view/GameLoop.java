@@ -1,8 +1,15 @@
 package com.example.view;
 
 import java.awt.Graphics2D;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.Timer;
 
@@ -39,11 +46,15 @@ public class GameLoop {
     int points = 0;
     public Message message;
     public int commandNum = 0;
-    public int numOfCommands = 4;
+    public final String[] menuOptions = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
+    public final String[] savedGameMenuOptions = new String[]{"Play", "Rename", "Delete", "Export"};
+    public boolean invalidInput = false;
+    public List<String[]> savedGames = new ArrayList<>();
+    public int savedGameIndex = 0;
 
-    int frame = 0;
+    public int frame = 0;
     public GameLogger gameLogger;
-    SoundManager soundManager;
+    public SoundManager soundManager;
 
     public GameLoop(GameConfig cfg, KeyHandler keyH) {
         this.cfg = cfg;
@@ -51,8 +62,7 @@ public class GameLoop {
         this.tileSize = cfg.tileSize;
         level = 1;
         Speeds.setSpeeds(cfg.FPS);
-        gameState = GameState.START_MENU;
-        numOfCommands = 5;
+        gameState = GameState.MENU;
         message = new Message();
         scale = tileSize / 3;
         tileMap = new TileMap(1);
@@ -61,7 +71,6 @@ public class GameLoop {
         soundManager.play("pick");
         keyH.setPacman(pacman);
         keyH.setGameLoop(this);
-        keyH.setSoundManager(soundManager);
         ghosts = new Ghost[]{
             new Blinky(13.5, 11, Speeds.ghostNormal),
             new Pinky (13.5, 14, Speeds.ghostNormal),
@@ -76,58 +85,82 @@ public class GameLoop {
         
         gameLogger = new GameLogger(seed);
         gameLogger.LoadLeaderboards();
+        loadSavedGames();
     }
 
     public void runMenuCommand() {
-        if (gameState == GameState.START_MENU) {
+        if (gameState == GameState.MENU) {
             switch (commandNum) {
                 case 0:
                     startGame();
                     break;
                 case 1:
+                    commandNum = 1;
+                    loadSavedGames();
+                    gameState = GameState.SAVED_GAMES;
                     break;
                 case 2:
                     break;
                 case 3:
+                    commandNum = 0;
                     gameState = GameState.LEADERBOARDS; break;
                 case 4:
                     System.exit(0);
                 default:
                     break;
             }
-        } else if (gameState == GameState.POST_MENU) {
-            switch (commandNum) {
-                case 0:
-                    gameLogger.saveToFile();
-                    break;
-                case 1:
-                    level = 1;
-                    tileMap.loadMap(level);
-                    tileMap.loadTiles(level);
-                    controller.initializeNewGame();
-                    startGame();
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    System.exit(0);
-                default:
-                    break;
+        } else if (gameState == GameState.SAVED_GAMES) {
+            if (commandNum == 0) gameState = GameState.MENU;
+            else {
+                savedGameIndex = commandNum - 1;
+                commandNum = 1;
+                gameState = GameState.SAVED_GAME_MANAGER;
             }
         }
+        
+
+    }
+
+    public void saveInput() {
+        if (gameState == GameState.SAVE_GAME) saveGame();
+        else if (gameState == GameState.UPDATE_LEADERBOARDS) saveLeaderboards();
     }
 
     public void saveLeaderboards() {
+        if (message.getMessage().isBlank()) {
+            invalidInput = true;
+            message.setMessage(Message.EMPTY);
+            return;
+        }
+
+        invalidInput = false;
         TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
         leaderboards.put(pacman.points, message.getMessage());
         if (leaderboards.size() > 10) leaderboards.remove(leaderboards.firstKey());
-        gameLogger.setLeaderboards();
+        gameLogger.saveLeaderboards();
         gameState = GameState.LEADERBOARDS;
+        message.setMessage(Message.EMPTY);
     }
 
     public void closeLeaderboards() {
-        if (message.getMessage().equals(Message.READY)) gameState = GameState.START_MENU;
-        else gameState = GameState.POST_MENU;
+        if (message.getMessage().equals(Message.READY)) gameState = GameState.MENU;
+        else gameState = GameState.SAVE_GAME;
+    }
+
+    public void loadSavedGames() {
+        savedGames.clear();
+        gameLogger.loadSavedGamesList();
+        for (Entry<String, FileTime> fileDetails : gameLogger.getSavedGames()) {
+            LocalDateTime dateAndTime = fileDetails.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            DateTimeFormatter date = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm:ss");
+            savedGames.add(new String[]{fileDetails.getKey(), dateAndTime.format(date), dateAndTime.format(time)});
+        }
+    }
+
+    public void saveGame() {
+        if (!message.getMessage().isBlank()) gameLogger.saveGame(message.getMessage());
+        gameState = GameState.MENU;
     }
 
     public void startGame() {
@@ -180,8 +213,7 @@ public class GameLoop {
                             leaderboards.size() < 10 || 
                             pacman.points > leaderboards.lastKey() ?
                                                 GameState.UPDATE_LEADERBOARDS : 
-                                                GameState.POST_MENU;
-                numOfCommands = 4;
+                                                GameState.SAVE_GAME;
             });
             timer.setRepeats(false);
             timer.start();
@@ -212,26 +244,22 @@ public class GameLoop {
     }
 
     public void update() {
-        switch (gameState) {
-            case START_MENU:
-                break;
-            case PAUSED:
-            case TRANSIENT_PAUSE:
-                break;
-            case RUN:
-                updateGame();
-                gameLogger.addFrame(frame++, pacman.nextDirection);
-                break;
-            case UPDATE_LEADERBOARDS:
-            case LEADERBOARDS:
-                break;
-            case POST_MENU:
-                break;
-        }
+        if (gameState != GameState.RUN) return;
+        updateGame(); frame++;
     }
 
     public void draw(Graphics2D g2) {
-        if (gameState == GameState.LEADERBOARDS) drawer.drawLeaderboards(g2, gameLogger.getLeaderboards());
-        else drawer.draw(g2, gameState, commandNum);
+        switch (gameState) {
+            case MENU:                  drawer.drawMenu(g2, menuOptions, commandNum);               break;
+            case LEADERBOARDS:          drawer.drawLeaderboards(g2, gameLogger.getLeaderboards());  break;
+            case UPDATE_LEADERBOARDS:   drawer.drawUpdateLeaderboards(g2, invalidInput);            break;
+            case SAVE_GAME:             drawer.drawSaveGame(g2);                                    break;
+            case SAVED_GAMES:           drawer.drawSavedGames(g2, savedGames, commandNum);          break;
+            case SAVED_GAME_MANAGER:    drawer.drawSavedGameManager(g2, 
+                                            savedGames.get(savedGameIndex), 
+                                            savedGameMenuOptions, 
+                                            commandNum);                                            break;
+            default:                    drawer.drawGame(g2);                                        break;
+        }
     }
 }

@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Message {
-    List<String> VALUES = Arrays.asList("EMPTY", "READY", "GAME_OVER", "VICTORY", "PAUSED");
     public static final String EMPTY = "";
     public static final String READY =     "Get ready!";
     public static final String GAME_OVER = "Game Over!";
     public static final String VICTORY =   "You won!!!";
     public static final String PAUSED =    "  Paused  ";
+    List<String> VALUES = Arrays.asList("EMPTY", EMPTY, "READY", READY, "GAME_OVER", GAME_OVER, "VICTORY", VICTORY, "PAUSED", PAUSED);
 
     private String message;
     private Color color;
@@ -57,6 +57,7 @@ public class Message {
     }
 
     public void deleteInputMessage() {
+        if (message.isEmpty()) return;
         message = message.substring(0, message.length() - 1);
     }
 

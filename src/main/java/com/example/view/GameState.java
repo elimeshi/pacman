@@ -1,11 +1,14 @@
 package com.example.view;
 
 public enum GameState {
-    START_MENU,
+    MENU,
     TRANSIENT_PAUSE,
     PAUSED,
     RUN,
     UPDATE_LEADERBOARDS,
     LEADERBOARDS,
-    POST_MENU
+    SAVE_GAME,
+    SAVED_GAMES,
+    SAVED_GAME_MANAGER,
+    GAME_REPLAY
 }
