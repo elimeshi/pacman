@@ -5,5 +5,7 @@ public enum GameState {
     TRANSIENT_PAUSE,
     PAUSED,
     RUN,
+    UPDATE_LEADERBOARDS,
+    LEADERBOARDS,
     POST_MENU
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.TreeMap;
 
 import com.example.config.GameConfig;
 import com.example.model.Message;
@@ -36,7 +37,11 @@ public class Drawer {
     }
 
     public int getXForCenteredText(String text, Graphics2D g2) {
-        return (cfg.WINDOW_WIDTH - (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth()) / 2;
+        return (cfg.WINDOW_WIDTH - getTextLength(text, g2)) / 2;
+    }
+
+    public int getTextLength(String text, Graphics2D g2) {
+        return (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
     }
 
     public void drawStartMenu(Graphics2D g2, int commandNum) {
@@ -47,7 +52,7 @@ public class Drawer {
 
         int x, y;
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, (float) (tileSize)));
-        String[] options = new String[]{"New game", "Recorded games", "Manage control keys", "Quit"};
+        String[] options = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
         for (int i = 0; i < options.length; i++) {
             x = getXForCenteredText(options[i], g2);
             y = 400 + i * tileSize * 2;
@@ -56,6 +61,39 @@ public class Drawer {
                 g2.drawString(">", x - tileSize * 2, y);
             }
         }
+    }
+
+    public void drawUpdateLeaderboards(Graphics2D g2) {
+        g2.setColor(Color.green);
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) tileSize));
+        String text = "Nice work!";
+        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, tileSize / 2));
+        text = "You just broke into the Top 10!";
+        g2.drawString(text, getXForCenteredText(text, g2), 250);
+        g2.setColor(Color.white);
+        text = "Please enter your name:";
+        g2.drawString(text, getXForCenteredText(text, g2), 300);
+
+        int textFieldLength = 200;
+        int textFieldX = cfg.WINDOW_WIDTH / 2 - textFieldLength / 2;
+        g2.drawRect(textFieldX, 310, textFieldLength, 30);
+        g2.drawString(message.getMessage(), textFieldX, 330);
+    }
+
+    public void drawLeaderboards(Graphics2D g2, TreeMap<Integer, String> leaderboards) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(AssetLoader.loadFont("Emulogic-zrEw", (float) tileSize));
+        String text = "Leaderboards";
+        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        int y = 400;
+        for (Integer points : leaderboards.descendingKeySet()) {
+            g2.drawString(String.valueOf(points), cfg.WINDOW_WIDTH / 2 + 10, y);
+            String name = leaderboards.get(points);
+            g2.drawString(name, cfg.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10, y);
+            y += 50;
+        }
+        g2.drawLine(cfg.WINDOW_WIDTH / 2, 360, cfg.WINDOW_WIDTH / 2, y - 40);
     }
 
     public void drawPostMenu(Graphics2D g2, int commandNum) {
@@ -171,9 +209,11 @@ public class Drawer {
             case PAUSED:
             case RUN:
                 drawGame(g2); break;
-            
+            case UPDATE_LEADERBOARDS:
+                drawUpdateLeaderboards(g2); break;
             case POST_MENU:
                 drawPostMenu(g2, commandNum); break;
+            default: break;
         }
     }
 }

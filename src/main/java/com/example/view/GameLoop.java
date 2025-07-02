@@ -2,6 +2,7 @@ package com.example.view;
 
 import java.awt.Graphics2D;
 import java.util.Random;
+import java.util.TreeMap;
 
 import javax.swing.Timer;
 
@@ -36,8 +37,9 @@ public class GameLoop {
     AI ai;
 
     int points = 0;
-    Message message;
+    public Message message;
     public int commandNum = 0;
+    public int numOfCommands = 4;
 
     int frame = 0;
     public GameLogger gameLogger;
@@ -50,6 +52,7 @@ public class GameLoop {
         level = 1;
         Speeds.setSpeeds(cfg.FPS);
         gameState = GameState.START_MENU;
+        numOfCommands = 5;
         message = new Message();
         scale = tileSize / 3;
         tileMap = new TileMap(1);
@@ -72,7 +75,7 @@ public class GameLoop {
         drawer = new Drawer(cfg, tileMap, pacman, ghosts, fruit, message, scale);
         
         gameLogger = new GameLogger(seed);
-        
+        gameLogger.LoadLeaderboards();
     }
 
     public void runMenuCommand() {
@@ -86,6 +89,8 @@ public class GameLoop {
                 case 2:
                     break;
                 case 3:
+                    gameState = GameState.LEADERBOARDS; break;
+                case 4:
                     System.exit(0);
                 default:
                     break;
@@ -112,6 +117,19 @@ public class GameLoop {
         }
     }
 
+    public void saveLeaderboards() {
+        TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
+        leaderboards.put(pacman.points, message.getMessage());
+        if (leaderboards.size() > 10) leaderboards.remove(leaderboards.firstKey());
+        gameLogger.setLeaderboards();
+        gameState = GameState.LEADERBOARDS;
+    }
+
+    public void closeLeaderboards() {
+        if (message.getMessage().equals(Message.READY)) gameState = GameState.START_MENU;
+        else gameState = GameState.POST_MENU;
+    }
+
     public void startGame() {
         gameState = GameState.TRANSIENT_PAUSE;
         message.setMessage("READY");
@@ -127,10 +145,13 @@ public class GameLoop {
     }
 
     public void nextLevel() {
+        pacman.addPoints(400 + 200 * level);
         if (++level > 3) {
+            pacman.addPoints(5000);
+            pacman.addPoints(pacman.life * 1000);
             message.setMessage("VICTORY");
             return;
-        } 
+        }
         pacman.life++;
         tileMap.loadMap(level);
         tileMap.loadTiles(level);
@@ -151,8 +172,16 @@ public class GameLoop {
         if (pacman.gameOver || controller.victory) {
             soundManager.stop("background");
             gameState = GameState.TRANSIENT_PAUSE;
-            Timer timer = new Timer(3000, e -> { 
-                gameState = GameState.POST_MENU;
+            Timer timer = new Timer(3000, e -> {
+                message.setMessage("EMPTY");
+                TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards(); 
+                gameState = leaderboards == null || 
+                            leaderboards.isEmpty() || 
+                            leaderboards.size() < 10 || 
+                            pacman.points > leaderboards.lastKey() ?
+                                                GameState.UPDATE_LEADERBOARDS : 
+                                                GameState.POST_MENU;
+                numOfCommands = 4;
             });
             timer.setRepeats(false);
             timer.start();
@@ -193,12 +222,16 @@ public class GameLoop {
                 updateGame();
                 gameLogger.addFrame(frame++, pacman.nextDirection);
                 break;
+            case UPDATE_LEADERBOARDS:
+            case LEADERBOARDS:
+                break;
             case POST_MENU:
                 break;
         }
     }
 
     public void draw(Graphics2D g2) {
-        drawer.draw(g2, gameState, commandNum);
+        if (gameState == GameState.LEADERBOARDS) drawer.drawLeaderboards(g2, gameLogger.getLeaderboards());
+        else drawer.draw(g2, gameState, commandNum);
     }
 }

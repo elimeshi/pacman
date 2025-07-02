@@ -36,10 +36,12 @@ public class KeyHandler implements KeyListener {
             soundManager.play("pick");
             switch (code) {
                 case KeyEvent.VK_UP:
-                    gameLoop.commandNum = (gameLoop.commandNum + 3) % 4;
+                    int num = gameLoop.numOfCommands;
+                    gameLoop.commandNum = (gameLoop.commandNum + num - 1) % num;
                     break;
                 case KeyEvent.VK_DOWN:
-                    gameLoop.commandNum = (gameLoop.commandNum + 5) % 4;
+                    num = gameLoop.numOfCommands;
+                    gameLoop.commandNum = (gameLoop.commandNum + num + 1) % num;
                     break;
                 case KeyEvent.VK_ENTER:
                     gameLoop.runMenuCommand();
@@ -65,6 +67,12 @@ public class KeyHandler implements KeyListener {
             }
         } else if (gameLoop.gameState == GameState.PAUSED) {
             if (code == KeyEvent.VK_SPACE) gameLoop.pauseGame();
+        } else if (gameLoop.gameState == GameState.UPDATE_LEADERBOARDS) {
+            if (code == KeyEvent.VK_BACK_SPACE) gameLoop.message.deleteInputMessage();
+            else if(Character.isLetterOrDigit(e.getKeyChar())) gameLoop.message.writeInputMessage(String.valueOf(e.getKeyChar()));
+            else if (code == KeyEvent.VK_ENTER) gameLoop.saveLeaderboards();
+        } else if (gameLoop.gameState == GameState.LEADERBOARDS) {
+            if (code == KeyEvent.VK_ENTER) gameLoop.closeLeaderboards();
         }
         
     }

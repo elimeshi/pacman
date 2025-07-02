@@ -6,10 +6,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class GameLogger {
     
     private List<GameFrame> gameFrames = new LinkedList<>();
+    private TreeMap<Integer, String> leaderboards = new TreeMap<>();
     private long randomSeed;
 
     public GameLogger(long randomSeed) {
@@ -43,4 +45,26 @@ public class GameLogger {
     public List<GameFrame> getLogs() { return gameFrames; }    
     
     public long getSeed() { return randomSeed; }
+
+    @SuppressWarnings("unchecked")
+    public void LoadLeaderboards() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("leaderboards.ser"))) {
+            leaderboards = (TreeMap<Integer, String>) ois.readObject(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setLeaderboards() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("leaderboards.ser"))) {
+            oos.writeObject(leaderboards);
+            System.out.println("Leaderboards serialized successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public TreeMap<Integer, String> getLeaderboards() {
+        return leaderboards;
+    }
 }
