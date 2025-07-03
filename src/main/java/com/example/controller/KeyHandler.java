@@ -46,7 +46,7 @@ public class KeyHandler implements KeyListener {
                     gameLoop.runMenuCommand();
                     break;
             }
-        } else if (gameLoop.gameState == GameState.RUN) {
+        } else if (gameLoop.gameState == GameState.RUN && !gameLoop.replayMode) {
             switch (code) {
                 case KeyEvent.VK_UP:
                     pacman.nextDirection = 90;
@@ -70,7 +70,7 @@ public class KeyHandler implements KeyListener {
             }
         } else if (gameLoop.gameState == GameState.PAUSED) {
             if (code == KeyEvent.VK_SPACE) gameLoop.pauseGame();
-        } else if (gameLoop.gameState == GameState.UPDATE_LEADERBOARDS || gameLoop.gameState == GameState.SAVE_GAME) {
+        } else if (gameLoop.gameState == GameState.UPDATE_LEADERBOARDS || gameLoop.gameState == GameState.SAVE_GAME || gameLoop.gameState == GameState.RENAME_SAVED_GAME) {
             if (code == KeyEvent.VK_BACK_SPACE) { gameLoop.message.deleteInputMessage(); return; }
             char c = e.getKeyChar();
             if(Character.isLetterOrDigit(c) || c == ' ') gameLoop.message.writeInputMessage(String.valueOf(e.getKeyChar()));

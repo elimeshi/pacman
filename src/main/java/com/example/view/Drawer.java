@@ -143,7 +143,7 @@ public class Drawer {
         g2.setFont(pacmanFont06);
         g2.drawString("back", tileSize, tileSize);
         
-        if (commandNum == 0) g2.drawString(">", tileSize / 3, tileSize);
+        if (commandNum == 0) g2.drawString(">", 0, tileSize);
         
         int y = 400;
         int index = 0;
@@ -152,7 +152,7 @@ public class Drawer {
             g2.setFont(pacmanFont09);
             int nameX = cfg.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10;
             g2.drawString(name, nameX, y);
-            if (commandNum == ++index) g2.drawString(">", nameX - tileSize, y);
+            if (commandNum == ++index) g2.drawString(">", nameX - tileSize * 2, y);
             g2.setFont(pacmanFont04);
             g2.drawString(fileDetails[1], cfg.WINDOW_WIDTH / 2 + 10, y - 20);
             g2.drawString(fileDetails[2], cfg.WINDOW_WIDTH / 2 + 10, y);
@@ -166,11 +166,16 @@ public class Drawer {
         g2.setFont(pacmanFont1);
         String text = fileDetails[0];
         g2.drawString(text, getXForCenteredText(text, g2), 200);
+        g2.setFont(pacmanFont04);
+        for (int i = 1; i <= 2; i++) {
+            text = fileDetails[i];
+            g2.drawString(text, getXForCenteredText(text, g2), 200 + 20 * i);
+        }
         g2.setFont(pacmanFont06);
         g2.drawString("back", tileSize, tileSize);
+        if (commandNum == 0) g2.drawString(">", 0, tileSize);
         
-        if (commandNum == 0) g2.drawString(">", tileSize / 3, tileSize);
-        
+        g2.setFont(pacmanFont1);
         int x, y;
         for (int i = 0; i < options.length; i++) {
             x = getXForCenteredText(options[i], g2);
@@ -180,6 +185,19 @@ public class Drawer {
                 g2.drawString(">", x - tileSize * 2, y);
             }
         }
+    }
+
+    public void drawRenameSavedGame(Graphics2D g2) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(pacmanFont1);
+        String text = "Rename your saved game:";
+        g2.drawString(text, getXForCenteredText(text, g2), 300);
+
+        g2.setFont(pacmanFont06);
+        int textFieldLength = 300;
+        int textFieldX = cfg.WINDOW_WIDTH / 2 - textFieldLength / 2;
+        g2.drawRect(textFieldX, 360, textFieldLength, tileSize);
+        g2.drawString(message.getMessage(), textFieldX + 5, 360 + tileSize - 7);
     }
 
     private void drawTileMap(Graphics2D g2) {
@@ -193,7 +211,7 @@ public class Drawer {
                              null);
             }
         }
-    } 
+    }
 
     private void drawFruit(Graphics2D g2) {
         if (fruit.isVisible)

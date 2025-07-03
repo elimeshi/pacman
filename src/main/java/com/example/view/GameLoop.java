@@ -49,6 +49,9 @@ public class GameLoop {
     public final String[] menuOptions = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
     public final String[] savedGameMenuOptions = new String[]{"Play", "Rename", "Delete", "Export"};
     public boolean invalidInput = false;
+    public boolean replayMode = false;
+    public List<GameFrame> frames;
+    public int framePointer;
     public List<String[]> savedGames = new ArrayList<>();
     public int savedGameIndex = 0;
 
@@ -116,22 +119,35 @@ public class GameLoop {
                 commandNum = 1;
                 gameState = GameState.SAVED_GAME_MANAGER;
             }
+        } else if (gameState == GameState.SAVED_GAME_MANAGER) {
+            switch (commandNum) {
+                case 0: gameState = GameState.SAVED_GAMES; commandNum = 1; break;
+                case 1: playGame(); break;
+                case 2: renameSavedGame(); break;
+                case 3: deleteSavedGame(); break;
+                case 4: exportSavedGame(); break;
+                default: break;
+            }
         }
-        
-
     }
 
     public void saveInput() {
         if (gameState == GameState.SAVE_GAME) saveGame();
         else if (gameState == GameState.UPDATE_LEADERBOARDS) saveLeaderboards();
+        else if (gameState == GameState.RENAME_SAVED_GAME) saveRenameSavedGame();
     }
 
-    public void saveLeaderboards() {
+    public boolean validateInput() {
         if (message.getMessage().isBlank()) {
             invalidInput = true;
             message.setMessage(Message.EMPTY);
-            return;
+            return false;
         }
+        return true;
+    }
+
+    public void saveLeaderboards() {
+        if (!validateInput()) return;
 
         invalidInput = false;
         TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
@@ -163,14 +179,54 @@ public class GameLoop {
         gameState = GameState.MENU;
     }
 
+    public void playGame() {
+        replayMode = true;
+        gameLogger.loadGame(savedGames.get(savedGameIndex)[0]);
+        random = new Random(gameLogger.getSeed());
+        frames = gameLogger.getLogs();
+        System.out.println(frames);
+        framePointer = 0;
+        startGame();
+    }
+
+    public void updateReplayFrame() {
+        if (framePointer >= frames.size()) return;
+        GameFrame currentFrame = frames.get(framePointer);
+        if (currentFrame.frame == frame) { pacman.nextDirection = currentFrame.pacmanNextDirection; System.out.println(framePointer); framePointer++; }
+    }
+
+    public void renameSavedGame() {
+        gameState = GameState.RENAME_SAVED_GAME;
+        message.setMessage(Message.EMPTY);
+    }
+
+    public void saveRenameSavedGame() {
+        if (!validateInput()) return;
+        gameLogger.renameSavedGame(savedGames.get(savedGameIndex)[0], message.getMessage());
+        loadSavedGames();
+        gameState = GameState.SAVED_GAME_MANAGER;
+    }
+
+    public void deleteSavedGame() {
+        gameLogger.deleteSavedGame(savedGames.get(savedGameIndex)[0]);
+        loadSavedGames();
+        gameState = GameState.SAVED_GAMES;
+    }
+
+    public void exportSavedGame() {
+
+    }
+
     public void startGame() {
+        level = 1;
+        controller.initializeNewGame();
         gameState = GameState.TRANSIENT_PAUSE;
         message.setMessage("READY");
         soundManager.play("pacman intro");
         Timer startGameTimer = new Timer(5000, e -> { 
                 frame = 0; 
                 gameState = GameState.RUN; 
-                message.setMessage("EMPTY"); 
+                message.setMessage(Message.EMPTY); 
                 soundManager.loopStart("background");
         });
         startGameTimer.setRepeats(false);
@@ -202,8 +258,11 @@ public class GameLoop {
     }
 
     public void updateGame() {
+        if (replayMode) updateReplayFrame();
+
         if (pacman.gameOver || controller.victory) {
             soundManager.stop("background");
+            if (replayMode) { gameState = GameState.SAVED_GAME_MANAGER; replayMode = false; return; }
             gameState = GameState.TRANSIENT_PAUSE;
             Timer timer = new Timer(3000, e -> {
                 message.setMessage("EMPTY");
@@ -219,10 +278,9 @@ public class GameLoop {
             timer.start();
             soundManager.play(controller.victory ? "victory" : "game over");
             return;
-        } 
+        }
 
         if (pacman.deadNow) {
-            System.out.println("dead now");
             gameState = GameState.TRANSIENT_PAUSE;
             Timer timer = new Timer(1000, e -> { 
                 gameState = GameState.RUN;
@@ -244,6 +302,7 @@ public class GameLoop {
     }
 
     public void update() {
+        // System.out.println(gameState);
         if (gameState != GameState.RUN) return;
         updateGame(); frame++;
     }
@@ -259,6 +318,7 @@ public class GameLoop {
                                             savedGames.get(savedGameIndex), 
                                             savedGameMenuOptions, 
                                             commandNum);                                            break;
+            case RENAME_SAVED_GAME:     drawer.drawRenameSavedGame(g2);                             break;
             default:                    drawer.drawGame(g2);                                        break;
         }
     }

@@ -10,5 +10,6 @@ public enum GameState {
     SAVE_GAME,
     SAVED_GAMES,
     SAVED_GAME_MANAGER,
+    RENAME_SAVED_GAME,
     GAME_REPLAY
 }

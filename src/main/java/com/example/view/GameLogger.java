@@ -1,5 +1,6 @@
 package com.example.view;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -70,6 +71,21 @@ public class GameLogger {
         }
         savedGames.sort((a, b) -> b.getValue().compareTo(a.getValue()));
     }
+
+    public void renameSavedGame(String fileName, String newName) {
+        File oldFile = new File("saved games/" + fileName + ".ser");
+        File newFile = new File("saved games/" + newName + ".ser");
+
+        if (oldFile.renameTo(newFile)) {
+            System.out.println("File renamed successfully.");
+        } else {
+            System.out.println("Failed to rename file.");
+        }
+    }
+
+    public void deleteSavedGame(String fileName) {
+        System.out.println(new File("saved games/" + fileName + ".ser").delete() ? "File deleted successfully." : "Failed to delete file.");
+    } 
 
     public String removeExtension(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
