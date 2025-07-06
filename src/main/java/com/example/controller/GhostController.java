@@ -38,17 +38,9 @@ public abstract class GhostController extends EntityController {
         this.pacman = pacman;
         this.ai = ai;
         this.FPS = FPS;
-        profile = new GhostModeSchedule();
-        modes = profile.modes;
-        durations = profile.durations;
-        frightenedDuration = profile.frightenedDuration * FPS;
-        inPenDuration = profile.inPenAfterEatenDuration * FPS;
-        frightenedCounter = -1;
-        inPenCounter = -1;
-        currentMode = null;
-        restarted = false;
         this.ghostPenGate = new Point2D.Double(13, 11);
         this.soundManager = soundManager;
+        initialize();
     }
 
     public void initialize() {

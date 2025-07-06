@@ -10,7 +10,7 @@ public class TileMap implements Serializable {
     public char[][] map;
     public HashMap<Character, Tile> tiles;
 
-    public TileMap(int level) {
+    public void loadLevel(int level) {
         loadTiles(level);
         loadMap(level);
     }

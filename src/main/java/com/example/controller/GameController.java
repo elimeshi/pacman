@@ -14,6 +14,7 @@ public class GameController {
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
     public FruitController fruitController;
+    public TileMap tileMap;
     public TileType pacmanTile;
     public boolean victory = false;
     public int fps;
@@ -25,6 +26,7 @@ public class GameController {
     public GameController(Pacman pacman, Ghost[] ghosts, AI ai, Fruit fruit, TileMap tileMap, int FPS, SoundManager soundManager) {
         this.pacman = pacman;
         this.fps = FPS;
+        this.tileMap = tileMap;
         pacmanController = new PacmanController(pacman, tileMap);
         ghostControllers = new GhostController[]{
             new BlinkyController((Blinky) ghosts[0], pacman, ai, FPS, tileMap, soundManager),
@@ -37,10 +39,13 @@ public class GameController {
     }
 
     public void initializeNewGame() {
+        System.out.println("initializing");
         pacman.initialize();
         for (GhostController controller : ghostControllers) controller.initialize();
+        tileMap.loadLevel(1);
         eatenDots = 0;
         ghostTimer = 0;
+        fruitController.setTimerForNextFruit();
         victory = false;
     }
 
@@ -63,7 +68,6 @@ public class GameController {
     public void pacmanIsDead() {
         ghostTimer = 0;
         for (GhostController controller : ghostControllers) controller.restart();
-        pacman.deadNow = false;
     }
 
     public void releaseGhosts() {

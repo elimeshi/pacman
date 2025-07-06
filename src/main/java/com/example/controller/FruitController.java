@@ -20,7 +20,6 @@ public class FruitController {
         this.pacman = pacman;
         this.fps = fps;
         this.soundManager = soundManager;
-        setTimerForNextFruit();
 
         totalWeight = 0;
         for (FruitType type : FruitType.values()) totalWeight += type.getWeight();

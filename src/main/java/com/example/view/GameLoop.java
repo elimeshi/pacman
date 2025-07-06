@@ -1,6 +1,8 @@
 package com.example.view;
 
 import java.awt.Graphics2D;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,9 +30,12 @@ import com.example.utils.SoundManager;
 public class GameLoop {
 
     GameConfig cfg;
+    public boolean debugMode = true;
+    public PrintWriter debugLog;
     public GameState gameState;
-    public static long seed = System.currentTimeMillis();
-    public static Random random = new Random(seed);
+    public static long seed;
+    public static Random random;
+    public volatile Integer pendingDirection;
     int level;
     KeyHandler keyH;
     TileMap tileMap;
@@ -50,6 +55,7 @@ public class GameLoop {
     public final String[] savedGameMenuOptions = new String[]{"Play", "Rename", "Delete", "Export"};
     public boolean invalidInput = false;
     public boolean replayMode = false;
+    public boolean exportMode = false;
     public List<GameFrame> frames;
     public int framePointer;
     public List<String[]> savedGames = new ArrayList<>();
@@ -68,7 +74,7 @@ public class GameLoop {
         gameState = GameState.MENU;
         message = new Message();
         scale = tileSize / 3;
-        tileMap = new TileMap(1);
+        tileMap = new TileMap();
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
         soundManager = new SoundManager();
         soundManager.play("pick");
@@ -86,7 +92,7 @@ public class GameLoop {
         controller = new GameController(pacman, ghosts, ai, fruit, tileMap, cfg.FPS, soundManager);
         drawer = new Drawer(cfg, tileMap, pacman, ghosts, fruit, message, scale);
         
-        gameLogger = new GameLogger(seed);
+        gameLogger = new GameLogger();
         gameLogger.LoadLeaderboards();
         loadSavedGames();
     }
@@ -181,12 +187,13 @@ public class GameLoop {
 
     public void playGame() {
         replayMode = true;
+        startGame();
         gameLogger.loadGame(savedGames.get(savedGameIndex)[0]);
         random = new Random(gameLogger.getSeed());
         frames = gameLogger.getLogs();
         System.out.println(frames);
         framePointer = 0;
-        startGame();
+        
     }
 
     public void updateReplayFrame() {
@@ -214,11 +221,22 @@ public class GameLoop {
     }
 
     public void exportSavedGame() {
+        GameExporter exporter = new GameExporter(this);
+        playGame();
+        exportMode = true;
+        exporter.execute();
+    }
 
+    public void onExportFinished() {
+        // gameState = GameState.SAVED_GAME_MANAGER;
     }
 
     public void startGame() {
+        if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
         level = 1;
+        seed = System.currentTimeMillis();
+        random = new Random(seed);
+        gameLogger.startRecord(seed);
         controller.initializeNewGame();
         gameState = GameState.TRANSIENT_PAUSE;
         message.setMessage("READY");
@@ -231,6 +249,13 @@ public class GameLoop {
         });
         startGameTimer.setRepeats(false);
         startGameTimer.start();
+    }
+
+    public synchronized void getInput() {
+        if (pendingDirection == null) return;
+        pacman.nextDirection = pendingDirection;
+        gameLogger.addFrame(frame, pendingDirection);
+        pendingDirection = null;
     }
 
     public void nextLevel() {
@@ -258,15 +283,17 @@ public class GameLoop {
     }
 
     public void updateGame() {
+        getInput();
+
         if (replayMode) updateReplayFrame();
 
         if (pacman.gameOver || controller.victory) {
             soundManager.stop("background");
-            if (replayMode) { gameState = GameState.SAVED_GAME_MANAGER; replayMode = false; return; }
             gameState = GameState.TRANSIENT_PAUSE;
             Timer timer = new Timer(3000, e -> {
                 message.setMessage("EMPTY");
-                TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards(); 
+                TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
+                if (replayMode) { gameState = GameState.SAVED_GAME_MANAGER; replayMode = false; exportMode = false; return; } 
                 gameState = leaderboards == null || 
                             leaderboards.isEmpty() || 
                             leaderboards.size() < 10 || 
@@ -282,13 +309,13 @@ public class GameLoop {
 
         if (pacman.deadNow) {
             gameState = GameState.TRANSIENT_PAUSE;
-            Timer timer = new Timer(1000, e -> { 
+            Timer timer = new Timer(1000, e -> {
                 gameState = GameState.RUN;
                 controller.pacmanIsDead();
             });
             timer.setRepeats(false);
             timer.start();
-            controller.pacmanIsDead();
+            pacman.deadNow = false;
         }
 
         if (pacman.dead) {
@@ -296,15 +323,18 @@ public class GameLoop {
             if (pacman.gameOver) message.setMessage("GAME_OVER"); 
             return;
         }
-
         controller.update();
         if (controller.victory) nextLevel();
     }
 
     public void update() {
-        // System.out.println(gameState);
-        if (gameState != GameState.RUN) return;
-        updateGame(); frame++;
+        if (gameState != GameState.RUN || exportMode) return;
+        updateGame(); 
+        if (debugMode) {
+            debugLog.println("Frame: " + frame +", PacMan: (" + pacman.x + ", " + pacman.y + ")");
+            debugLog.flush();
+        } 
+        frame++;
     }
 
     public void draw(Graphics2D g2) {
@@ -319,6 +349,7 @@ public class GameLoop {
                                             savedGameMenuOptions, 
                                             commandNum);                                            break;
             case RENAME_SAVED_GAME:     drawer.drawRenameSavedGame(g2);                             break;
+            case WAIT_FOR_EXPORT:       drawer.drawWaitForExport(g2, frame);                        break;
             default:                    drawer.drawGame(g2);                                        break;
         }
     }

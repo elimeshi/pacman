@@ -24,8 +24,9 @@ public class GameLogger {
     private List<GameFrame> gameFrames = new ArrayList<>();
     private long randomSeed;
 
-    public GameLogger(long randomSeed) {
-        this.randomSeed = randomSeed;
+    public void startRecord(long seed) {
+        randomSeed = seed;
+        gameFrames.clear();
     }
 
     public void addFrame(int frame, int pacmanInput) {

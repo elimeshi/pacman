@@ -200,6 +200,13 @@ public class Drawer {
         g2.drawString(message.getMessage(), textFieldX + 5, 360 + tileSize - 7);
     }
 
+    public void drawWaitForExport(Graphics2D g2, int frame) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(pacmanFont2);
+        String text = "Exporting" + ".".repeat((frame / 10) % 3 + 1);
+        g2.drawString(text, getXForCenteredText(text, g2), 300);
+    }
+
     private void drawTileMap(Graphics2D g2) {
         for (int i = 0; i < tileMap.mapHeight(); i++) {
             for (int j = 0; j < tileMap.mapWidth(); j++) {

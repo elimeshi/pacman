@@ -48,25 +48,11 @@ public class KeyHandler implements KeyListener {
             }
         } else if (gameLoop.gameState == GameState.RUN && !gameLoop.replayMode) {
             switch (code) {
-                case KeyEvent.VK_UP:
-                    pacman.nextDirection = 90;
-                    gameLoop.gameLogger.addFrame(gameLoop.frame, 90);
-                    break;
-                case KeyEvent.VK_DOWN:
-                    pacman.nextDirection = -90;
-                    gameLoop.gameLogger.addFrame(gameLoop.frame, -90);
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    pacman.nextDirection = 0;
-                    gameLoop.gameLogger.addFrame(gameLoop.frame, 0);
-                    break;
-                case KeyEvent.VK_LEFT:
-                    pacman.nextDirection = 180;
-                    gameLoop.gameLogger.addFrame(gameLoop.frame, 180);
-                    break;
-                case KeyEvent.VK_SPACE:
-                    gameLoop.pauseGame();
-                    break;
+                case KeyEvent.VK_UP: gameLoop.pendingDirection = 90; break;
+                case KeyEvent.VK_DOWN: gameLoop.pendingDirection = -90; break;
+                case KeyEvent.VK_RIGHT:gameLoop.pendingDirection = 0; break;
+                case KeyEvent.VK_LEFT:gameLoop.pendingDirection = 180; break;
+                case KeyEvent.VK_SPACE: gameLoop.pauseGame(); break;
             }
         } else if (gameLoop.gameState == GameState.PAUSED) {
             if (code == KeyEvent.VK_SPACE) gameLoop.pauseGame();
