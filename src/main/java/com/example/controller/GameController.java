@@ -45,7 +45,7 @@ public class GameController {
         tileMap.loadLevel(1);
         eatenDots = 0;
         ghostTimer = 0;
-        fruitController.setTimerForNextFruit();
+        fruitController.initialize();
         victory = false;
     }
 

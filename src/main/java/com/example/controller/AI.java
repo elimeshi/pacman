@@ -137,6 +137,6 @@ public class AI {
         if (ghost.isInPen() && ghost.mode != GhostMode.Frightened) return getDirectionInPen(ghost);
         updateGlobalVariables(ghost);
         int[] directions = getPossibleDirections(tileMap);
-        return directions[GameLoop.random.nextInt(directions.length)];
+        return directions[GameLoop.nextInt(directions.length)];
     }
 }

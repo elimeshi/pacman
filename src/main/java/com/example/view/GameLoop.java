@@ -13,8 +13,6 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import javax.swing.Timer;
-
 import com.example.config.GameConfig;
 import com.example.controller.AI;
 import com.example.controller.GameController;
@@ -36,6 +34,9 @@ public class GameLoop {
     public static long seed;
     public static Random random;
     public volatile Integer pendingDirection;
+    public int deathPauseFrames;
+    public int startGamePauseFrames;
+    public int gameOverPauseFrames;
     int level;
     KeyHandler keyH;
     TileMap tileMap;
@@ -48,7 +49,6 @@ public class GameLoop {
     Drawer drawer;
     AI ai;
 
-    int points = 0;
     public Message message;
     public int commandNum = 0;
     public final String[] menuOptions = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
@@ -61,7 +61,7 @@ public class GameLoop {
     public List<String[]> savedGames = new ArrayList<>();
     public int savedGameIndex = 0;
 
-    public int frame = 0;
+    public static int frame;
     public GameLogger gameLogger;
     public SoundManager soundManager;
 
@@ -95,6 +95,18 @@ public class GameLoop {
         gameLogger = new GameLogger();
         gameLogger.LoadLeaderboards();
         loadSavedGames();
+    }
+
+    public static int nextInt(int bound) {
+        int result = random.nextInt(bound);
+        System.out.println("Frame " + frame + ", bound: " + bound + ", next int: " + result);
+        return result;
+    }
+
+    public static double nextDouble() {
+        double result = random.nextDouble();
+        System.out.println("Frame " + frame + ", next double: " + result);
+        return result;
     }
 
     public void runMenuCommand() {
@@ -165,7 +177,7 @@ public class GameLoop {
     }
 
     public void closeLeaderboards() {
-        if (message.getMessage().equals(Message.READY)) gameState = GameState.MENU;
+        if (!(message.getMessage().equals(Message.GAME_OVER) || message.getMessage().equals(Message.VICTORY))) gameState = GameState.MENU;
         else gameState = GameState.SAVE_GAME;
     }
 
@@ -187,13 +199,14 @@ public class GameLoop {
 
     public void playGame() {
         replayMode = true;
-        startGame();
         gameLogger.loadGame(savedGames.get(savedGameIndex)[0]);
-        random = new Random(gameLogger.getSeed());
         frames = gameLogger.getLogs();
+        seed = gameLogger.getSeed();
+        random = new Random(seed);
+        startGame();
+        if (debugMode) debugLog.println(gameLogger.getSeed());
         System.out.println(frames);
         framePointer = 0;
-        
     }
 
     public void updateReplayFrame() {
@@ -211,12 +224,14 @@ public class GameLoop {
         if (!validateInput()) return;
         gameLogger.renameSavedGame(savedGames.get(savedGameIndex)[0], message.getMessage());
         loadSavedGames();
+        commandNum = 1;
         gameState = GameState.SAVED_GAME_MANAGER;
     }
 
     public void deleteSavedGame() {
         gameLogger.deleteSavedGame(savedGames.get(savedGameIndex)[0]);
         loadSavedGames();
+        commandNum = 1;
         gameState = GameState.SAVED_GAMES;
     }
 
@@ -228,27 +243,26 @@ public class GameLoop {
     }
 
     public void onExportFinished() {
-        // gameState = GameState.SAVED_GAME_MANAGER;
+        gameState = GameState.SAVED_GAME_MANAGER;
     }
 
     public void startGame() {
         if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
         level = 1;
-        seed = System.currentTimeMillis();
-        random = new Random(seed);
-        gameLogger.startRecord(seed);
+        frame = 0;
+        deathPauseFrames = 0;
+        startGamePauseFrames = 5 * cfg.FPS;
+        gameOverPauseFrames = 0;
+        if (!replayMode) {
+            seed = System.currentTimeMillis();
+            random = new Random(seed);
+            gameLogger.startRecord(seed);
+        }
         controller.initializeNewGame();
-        gameState = GameState.TRANSIENT_PAUSE;
+        if (debugMode) debugLog.println(seed);
+        gameState = GameState.RUN;
         message.setMessage("READY");
         soundManager.play("pacman intro");
-        Timer startGameTimer = new Timer(5000, e -> { 
-                frame = 0; 
-                gameState = GameState.RUN; 
-                message.setMessage(Message.EMPTY); 
-                soundManager.loopStart("background");
-        });
-        startGameTimer.setRepeats(false);
-        startGameTimer.start();
     }
 
     public synchronized void getInput() {
@@ -283,39 +297,54 @@ public class GameLoop {
     }
 
     public void updateGame() {
-        getInput();
+        if (replayMode) updateReplayFrame(); else getInput();
 
-        if (replayMode) updateReplayFrame();
+        if (startGamePauseFrames > 0) {
+            if (--startGamePauseFrames <= 0) {
+                System.out.println(seed);
+                message.setMessage(Message.EMPTY);
+                soundManager.loopStart("background");
+            }
+            return;
+        }
 
-        if (pacman.gameOver || controller.victory) {
+        if ((pacman.gameOver || controller.victory) && gameOverPauseFrames <= 0) {
             soundManager.stop("background");
-            gameState = GameState.TRANSIENT_PAUSE;
-            Timer timer = new Timer(3000, e -> {
+            gameOverPauseFrames = 3 * cfg.FPS;
+            soundManager.play(controller.victory ? "victory" : "game over");
+            return;
+        }
+
+        if (gameOverPauseFrames > 0) {
+            if (--gameOverPauseFrames <= 0) {
                 message.setMessage("EMPTY");
                 TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
-                if (replayMode) { gameState = GameState.SAVED_GAME_MANAGER; replayMode = false; exportMode = false; return; } 
+                if (replayMode) { 
+                    gameState = exportMode ? GameState.WAIT_FOR_EXPORT : GameState.SAVED_GAME_MANAGER; 
+                    replayMode = false; 
+                    exportMode = false; 
+                    return; 
+                } 
                 gameState = leaderboards == null || 
                             leaderboards.isEmpty() || 
                             leaderboards.size() < 10 || 
                             pacman.points > leaderboards.lastKey() ?
                                                 GameState.UPDATE_LEADERBOARDS : 
                                                 GameState.SAVE_GAME;
-            });
-            timer.setRepeats(false);
-            timer.start();
-            soundManager.play(controller.victory ? "victory" : "game over");
+            }
             return;
         }
 
         if (pacman.deadNow) {
-            gameState = GameState.TRANSIENT_PAUSE;
-            Timer timer = new Timer(1000, e -> {
-                gameState = GameState.RUN;
-                controller.pacmanIsDead();
-            });
-            timer.setRepeats(false);
-            timer.start();
+            deathPauseFrames = cfg.FPS;
             pacman.deadNow = false;
+        }
+
+        if (deathPauseFrames > 0) {
+            if (--deathPauseFrames <= 0) {
+                controller.pacmanIsDead();
+            }
+            return;
         }
 
         if (pacman.dead) {
@@ -327,13 +356,19 @@ public class GameLoop {
         if (controller.victory) nextLevel();
     }
 
+    public void debug() {
+        if (debugMode) {
+            debugLog.println("Frame: " + frame +", PacMan: (" + pacman.x + ", " + pacman.y + ")");
+            debugLog.println("Fruit: " + fruit.type);
+            debugLog.println("\n");
+            debugLog.flush();
+        } 
+    }
+
     public void update() {
         if (gameState != GameState.RUN || exportMode) return;
         updateGame(); 
-        if (debugMode) {
-            debugLog.println("Frame: " + frame +", PacMan: (" + pacman.x + ", " + pacman.y + ")");
-            debugLog.flush();
-        } 
+        debug();
         frame++;
     }
 
@@ -350,7 +385,8 @@ public class GameLoop {
                                             commandNum);                                            break;
             case RENAME_SAVED_GAME:     drawer.drawRenameSavedGame(g2);                             break;
             case WAIT_FOR_EXPORT:       drawer.drawWaitForExport(g2, frame);                        break;
-            default:                    drawer.drawGame(g2);                                        break;
+            default:                    if (exportMode) drawer.drawWaitForExport(g2, frame); 
+                                        else drawer.drawGame(g2);                                   break;
         }
     }
 }

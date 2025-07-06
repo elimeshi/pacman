@@ -202,9 +202,9 @@ public class Drawer {
 
     public void drawWaitForExport(Graphics2D g2, int frame) {
         g2.setColor(Color.WHITE);
-        g2.setFont(pacmanFont2);
+        g2.setFont(pacmanFont1);
         String text = "Exporting" + ".".repeat((frame / 10) % 3 + 1);
-        g2.drawString(text, getXForCenteredText(text, g2), 300);
+        g2.drawString(text, getXForCenteredText("exporting", g2), 300);
     }
 
     private void drawTileMap(Graphics2D g2) {

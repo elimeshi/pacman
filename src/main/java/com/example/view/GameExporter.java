@@ -9,6 +9,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
@@ -26,22 +28,19 @@ public class GameExporter extends SwingWorker<Void, Void> {
         while (gameLoop.exportMode) {
             if (gameLoop.gameState == GameState.RUN) {
                 gameLoop.updateGame();
-                if (gameLoop.debugMode) {
-                   gameLoop.debugLog.println("Frame: " + gameLoop.frame +", PacMan: (" + gameLoop.pacman.x + ", " + gameLoop.pacman.y + ")");
-                   gameLoop.debugLog.flush();
-                } 
-                gameLoop.frame++;
-            }
-            
-            if (gameLoop.frame % 3 == 0) {
-                BufferedImage image = new BufferedImage(gameLoop.cfg.WINDOW_WIDTH, gameLoop.cfg.WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2 = (Graphics2D) image.getGraphics();
-                gameLoop.drawer.drawGame(g2);
-                g2.dispose();
-                try {
-                    ImageIO.write(image, "png", new File(String.format("output/frame_%05d.png", gameLoop.frame / 3)));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                gameLoop.debug();
+                GameLoop.frame++;
+
+                if (GameLoop.frame % 3 == 0) {
+                    BufferedImage image = new BufferedImage(gameLoop.cfg.WINDOW_WIDTH, gameLoop.cfg.WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D g2 = (Graphics2D) image.getGraphics();
+                    gameLoop.drawer.drawGame(g2);
+                    g2.dispose();
+                    try {
+                        ImageIO.write(image, "png", new File(String.format("output/frame_%05d.png", GameLoop.frame / 3)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }        
@@ -50,13 +49,14 @@ public class GameExporter extends SwingWorker<Void, Void> {
 
     public void exportToMP4() {
         try {
+            String videoName = gameLoop.savedGames.get(gameLoop.savedGameIndex)[0] + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".mp4";
             ProcessBuilder builder = new ProcessBuilder(
                 "ffmpeg", "-y", 
                 "-framerate", "10",
                 "-i", "output/frame_%05d.png",
                 "-c:v", "libx264",
                 "-pix_fmt", "yuv420p",
-                "output_video.mp4");
+                "output/" + videoName);
             builder.redirectErrorStream(true);
             Process process = builder.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {

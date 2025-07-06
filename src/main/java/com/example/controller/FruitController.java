@@ -25,8 +25,13 @@ public class FruitController {
         for (FruitType type : FruitType.values()) totalWeight += type.getWeight();
     }
 
+    public void initialize() {
+        fruit.disappear();
+        setTimerForNextFruit();
+    }
+
     public FruitType chooseRandomFruitType() {
-        double randomWeight = GameLoop.random.nextDouble() * totalWeight;
+        double randomWeight = GameLoop.nextDouble() * totalWeight;
         double currentWeight = 0;
 
         for (FruitType type : FruitType.values()) {
@@ -42,7 +47,7 @@ public class FruitController {
     }
 
     public void setTimerForNextFruit() {
-        timerTarget = GameLoop.random.nextInt(10) + 5 * fps;
+        timerTarget = GameLoop.nextInt(10) + 5 * fps;
         timer = 0;
     }
 
