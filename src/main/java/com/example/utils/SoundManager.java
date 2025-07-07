@@ -11,7 +11,7 @@ public class SoundManager {
 
     public SoundManager() {
         clips = new HashMap<String,Clip>();
-        for (String file : new String[]{"pick", "coin", "energizer", "ghost eaten", "fruit eaten", "pacman intro", "background", "victory", "game over"})
+        for (String file : new String[]{"pick", "coin", "energizer", "ghost eaten", "fruit eaten", "pacman intro", "background", "pacman death", "levelup", "victory", "game over"})
             clips.put(file, AssetLoader.loadClip(file));
 
         for (Clip clip : clips.values()) {
@@ -25,8 +25,8 @@ public class SoundManager {
         clip.start();
     }
 
-    public void loopStart(String file) {
-        clip = clips.get(file);
+    public void startBackground() {
+        clip = clips.get("background");
         if (clip.isRunning()) clip.stop();
         clip.setFramePosition(0);
         clip.loop(Clip.LOOP_CONTINUOUSLY);

@@ -34,7 +34,7 @@ public class GameController {
             new InkyController((Inky) ghosts[2], pacman, ai, FPS, tileMap, soundManager),
             new ClydeController((Clyde) ghosts[3], pacman, ai, FPS, tileMap, soundManager),
         };
-        fruitController = new FruitController(fruit, pacman, FPS, soundManager);
+        fruitController = new FruitController(fruit, pacman, FPS, tileMap, soundManager);
         this.soundManager = soundManager;
     }
 
@@ -52,6 +52,7 @@ public class GameController {
     public void initializeNextLevel() {
         pacman.restart();
         for (GhostController controller : ghostControllers) controller.initialize();
+        fruitController.initialize();
         eatenDots = 0;
         ghostTimer = 0;
         victory = false;
@@ -85,14 +86,21 @@ public class GameController {
     }
 
     public void update() {
+        if (pacman.dead) {
+            pacman.updateDeath();
+            return;
+        }
+
         pacmanController.update();
         pacmanTile = TileType.Empty;
         if (pacmanController.isOnTile()) pacmanTile = pacmanController.collectPellet();
         if (pacmanTile == TileType.Dot) {
             eatenDots++;
             soundManager.play("coin");
+            fruitController.addPossiblePosition(new int[]{(int) pacman.x, (int) pacman.y});
         } else if (pacmanTile == TileType.Energizer) {
             soundManager.play("energizer");
+            fruitController.addPossiblePosition(new int[]{(int) pacman.x, (int) pacman.y});
         }
         checkForLevelComplete();
         if (victory) return;
