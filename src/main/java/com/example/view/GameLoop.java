@@ -68,7 +68,7 @@ public class GameLoop {
         this.keyH = keyH;
         this.tileSize = GameConfig.tileSize;
         level = 1;
-        Speeds.setSpeeds(GameConfig.FPS);
+        Speeds.setSpeeds();
         gameState = GameState.MENU;
         message = new Message();
         scale = tileSize / 3;

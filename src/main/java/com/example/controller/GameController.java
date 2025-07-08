@@ -17,10 +17,11 @@ public class GameController {
     public TileMap tileMap;
     public TileType pacmanTile;
     public boolean victory = false;
-    public int initialDots = 2;
+    public int initialDots = 30;
     public int quarterDots = initialDots / 4;
     public int eatenDots = 0;
     public int ghostTimer = 0;
+    public int[] blinkyElroyMode;
 
     public GameController(Pacman pacman, Ghost[] ghosts, AI ai, Fruit fruit, TileMap tileMap) {
         this.pacman = pacman;
@@ -38,6 +39,8 @@ public class GameController {
     public void initializeNewGame() {
         pacman.initialize();
         GhostModeSchedule.getInstance().loadModeSchedule(1);
+        blinkyElroyMode = GhostModeSchedule.getInstance().loadBlinkyConfig(1);
+        System.out.println(blinkyElroyMode[0] + " " + blinkyElroyMode[1]);
         for (GhostController controller : ghostControllers) controller.initialize();
         tileMap.loadLevel(1);
         eatenDots = 0;
@@ -49,6 +52,7 @@ public class GameController {
     public void initializeNextLevel(int level) {
         pacman.restart();
         GhostModeSchedule.getInstance().loadModeSchedule(level);
+        blinkyElroyMode = GhostModeSchedule.getInstance().loadBlinkyConfig(level);
         for (GhostController controller : ghostControllers) controller.initialize();
         fruitController.initialize();
         eatenDots = 0;
@@ -62,6 +66,12 @@ public class GameController {
         eatenDots = 0;
         ghostTimer = 0;
         victory = false;
+    }
+
+    public void updateBlinkyElroyMode() {
+        if (initialDots - eatenDots < blinkyElroyMode[1]) return;
+        if (initialDots - eatenDots <= blinkyElroyMode[1]) ghostControllers[0].upgradeElroyMode();
+        else if (initialDots - eatenDots <= blinkyElroyMode[0]) ghostControllers[0].setElroyMode();
     }
 
     public void pacmanIsDead() {
@@ -104,6 +114,7 @@ public class GameController {
         if (victory) return;
 
         releaseGhosts();
+        updateBlinkyElroyMode();
         for (GhostController controller : ghostControllers) {
             if (pacmanTile == TileType.Energizer) controller.setFrightened();
             controller.update();

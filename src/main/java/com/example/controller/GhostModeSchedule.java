@@ -13,11 +13,15 @@ public class GhostModeSchedule {
     private static GhostModeSchedule instance = null;
 
     private JsonNode cfg;
+    private JsonNode blinkyCfg;
     public Queue<GhostMode> modes = new LinkedList<>();
     public Queue<Integer> durations = new LinkedList<>();
     public int frightenedDuration, inPenAfterEatenDuration;
 
-    private GhostModeSchedule() { cfg = AssetLoader.loadJSON("Ghost_mode_schedule_config"); }
+    private GhostModeSchedule() { 
+        cfg = AssetLoader.loadJSON("Ghost_mode_schedule_config");
+        blinkyCfg = AssetLoader.loadJSON("Blinky_config");
+    }
 
     public static GhostModeSchedule getInstance() {
         if (instance == null) instance = new GhostModeSchedule();
@@ -38,5 +42,10 @@ public class GhostModeSchedule {
         }
         frightenedDuration = node.get("frightenedDuration").asInt();
         inPenAfterEatenDuration = node.get("inPenAfterEatenDuration").asInt();
+    }
+
+    public int[] loadBlinkyConfig(int level) {
+        JsonNode node = blinkyCfg.get("level" + level);
+        return new int[]{node.get(0).asInt(), node.get(1).asInt()};
     }
 }

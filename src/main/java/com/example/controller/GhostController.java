@@ -76,6 +76,10 @@ public abstract class GhostController extends EntityController {
         inPenCounter = -1;
     }
 
+    public void setElroyMode() {} // used for Blinky's special Elroy mode.
+
+    public void upgradeElroyMode() {} // as the previous method
+
     public void setFrightened() {
         if (ghost.mode == GhostMode.Eaten) return;
         if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
@@ -97,12 +101,14 @@ public abstract class GhostController extends EntityController {
         ghost.setDirection(ghost instanceof Pinky ? -90 : 90);
     }
 
+    public void setNormalSpeed() { ghost.setSpeed(Speeds.ghostNormal); }
+
     public void updateFrightened() {
         if (!ghost.isFrightened) return;
 
         if (++frightenedCounter >= frightenedDuration) {
             ghost.setFrightenedOff();
-            ghost.setSpeed(Speeds.ghostNormal);
+            setNormalSpeed();
         } else if (frightenedDuration - frightenedCounter <= 2 * GameConfig.FPS) {
             ghost.frightenedIsOver = true;
         } 
@@ -146,7 +152,7 @@ public abstract class GhostController extends EntityController {
     }
 
     public void updateChaseAndScatterMode() {
-        if (++modeCounter >= modeDuration) getNextMode();
+        if (!modes.isEmpty() && ++modeCounter >= modeDuration) getNextMode();
         ghost.setMode(currentMode);
     }
 
@@ -169,6 +175,7 @@ public abstract class GhostController extends EntityController {
         switch (ghost.mode) {
             case Chase:
             case Scatter:
+            case Elroy:
                 if (!isOnTile()) return;
                 ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
                 break;
@@ -212,7 +219,6 @@ public abstract class GhostController extends EntityController {
     }
 
     public void getNextMode() {
-        if (modes.isEmpty()) return;
         currentMode = modes.poll();
         modeDuration = durations.poll() * GameConfig.FPS;
         modeCounter = 0;
@@ -229,6 +235,7 @@ public abstract class GhostController extends EntityController {
     }
 
     public void update() {
+        if (this instanceof BlinkyController) System.out.println(ghost.speed);
         killPacman();
         updateGhostMode();
         updateGhostDirection();
