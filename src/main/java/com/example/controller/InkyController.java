@@ -4,7 +4,6 @@ import java.awt.geom.Point2D;
 
 import com.example.model.entity.enemy.Inky;
 import com.example.model.tile.TileMap;
-import com.example.utils.SoundManager;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
@@ -13,8 +12,8 @@ public class InkyController extends GhostController {
 
     Ghost inky;
 
-    public InkyController(Inky inky, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
-        super(inky, pacman, ai, FPS, tileMap, soundManager);
+    public InkyController(Inky inky, Pacman pacman, AI ai, TileMap tileMap) {
+        super(inky, pacman, ai, tileMap);
         this.inky = inky;
         scatterTile = new Point2D.Double(27, 31);
     }

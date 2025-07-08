@@ -53,7 +53,7 @@ public class Message {
     }
 
     public void writeInputMessage(String input) {
-        message += input; 
+        message += input;
     }
 
     public void deleteInputMessage() {

@@ -17,7 +17,6 @@ import com.example.utils.AssetLoader;
 
 public class Drawer {
 
-    GameConfig cfg;
     Pacman pacman;
     Ghost[] ghosts;
     TileMap tileMap;
@@ -32,14 +31,13 @@ public class Drawer {
     int tileSize;
     int scale;
 
-    public Drawer(GameConfig cfg, TileMap tileMap, Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int scale) {
-        this.cfg = cfg;
+    public Drawer(TileMap tileMap, Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int scale) {
         this.tileMap = tileMap;
         this.pacman = pacman; 
         this.ghosts = ghosts;
         this.fruit = fruit;
         this.message = message;
-        this.tileSize = cfg.tileSize;
+        this.tileSize = GameConfig.tileSize;
         this.scale = scale;
         pacmanFont1 = AssetLoader.loadFont("Emulogic-zrEw", (float) (tileSize));
         pacmanFont2 = pacmanFont1.deriveFont((float) tileSize * 2);
@@ -50,7 +48,7 @@ public class Drawer {
     }
 
     public int getXForCenteredText(String text, Graphics2D g2) {
-        return (cfg.WINDOW_WIDTH - getTextLength(text, g2)) / 2;
+        return (GameConfig.WINDOW_WIDTH - getTextLength(text, g2)) / 2;
     }
 
     public int getTextLength(String text, Graphics2D g2) {
@@ -88,9 +86,11 @@ public class Drawer {
         g2.drawString(text, getXForCenteredText(text, g2), 300);
 
         int textFieldLength = 300;
-        int textFieldX = cfg.WINDOW_WIDTH / 2 - textFieldLength / 2;
+        int textFieldX = GameConfig.WINDOW_WIDTH / 2 - textFieldLength / 2;
         g2.drawRect(textFieldX, 310, textFieldLength, tileSize);
         g2.drawString(message.getMessage(), textFieldX + 5, 310 + tileSize - 7);
+        int cursorX = getTextLength(message.getMessage(), g2) + textFieldX + 5;
+        g2.drawLine(cursorX, 312, cursorX, 312 + tileSize - 4);
         if (invalidInput) {
             g2.setColor(Color.RED);
             g2.setFont(pacmanFont04);
@@ -107,12 +107,12 @@ public class Drawer {
         int y = 400;
         g2.setFont(pacmanFont1);
         for (Integer points : leaderboards.descendingKeySet()) {
-            g2.drawString(String.valueOf(points), cfg.WINDOW_WIDTH / 2 + 10, y);
+            g2.drawString(String.valueOf(points), GameConfig.WINDOW_WIDTH / 2 + 10, y);
             String name = leaderboards.get(points);
-            g2.drawString(name, cfg.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10, y);
+            g2.drawString(name, GameConfig.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10, y);
             y += 50;
         }
-        g2.drawLine(cfg.WINDOW_WIDTH / 2, 360, cfg.WINDOW_WIDTH / 2, y - 40);
+        g2.drawLine(GameConfig.WINDOW_WIDTH / 2, 360, GameConfig.WINDOW_WIDTH / 2, y - 40);
     }
 
     public void drawSaveGame(Graphics2D g2) {
@@ -130,9 +130,11 @@ public class Drawer {
         g2.drawString(text, getXForCenteredText(text, g2), 300 + tileSize);
 
         int textFieldLength = 300;
-        int textFieldX = cfg.WINDOW_WIDTH / 2 - textFieldLength / 2;
+        int textFieldX = GameConfig.WINDOW_WIDTH / 2 - textFieldLength / 2;
         g2.drawRect(textFieldX, 360, textFieldLength, tileSize);
         g2.drawString(message.getMessage(), textFieldX + 5, 360 + tileSize - 7);
+        int cursorX = getTextLength(message.getMessage(), g2) + textFieldX + 5;
+        g2.drawLine(cursorX, 362, cursorX, 362 + tileSize - 4);
     }
 
     public void drawSavedGames(Graphics2D g2, List<String[]> savedGames, int commandNum) {
@@ -150,15 +152,15 @@ public class Drawer {
         for (String[] fileDetails : savedGames) {
             String name = fileDetails[0];
             g2.setFont(pacmanFont09);
-            int nameX = cfg.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10;
+            int nameX = GameConfig.WINDOW_WIDTH / 2 - getTextLength(name, g2) - 10;
             g2.drawString(name, nameX, y);
             if (commandNum == ++index) g2.drawString(">", nameX - tileSize * 2, y);
             g2.setFont(pacmanFont04);
-            g2.drawString(fileDetails[1], cfg.WINDOW_WIDTH / 2 + 10, y - 20);
-            g2.drawString(fileDetails[2], cfg.WINDOW_WIDTH / 2 + 10, y);
+            g2.drawString(fileDetails[1], GameConfig.WINDOW_WIDTH / 2 + 10, y - 20);
+            g2.drawString(fileDetails[2], GameConfig.WINDOW_WIDTH / 2 + 10, y);
             y += 50;
         }
-        g2.drawLine(cfg.WINDOW_WIDTH / 2, 360, cfg.WINDOW_WIDTH / 2, y - 40);
+        g2.drawLine(GameConfig.WINDOW_WIDTH / 2, 360, GameConfig.WINDOW_WIDTH / 2, y - 40);
     }
 
     public void drawSavedGameManager(Graphics2D g2, String[] fileDetails, String[] options, int commandNum) {
@@ -195,7 +197,7 @@ public class Drawer {
 
         g2.setFont(pacmanFont06);
         int textFieldLength = 300;
-        int textFieldX = cfg.WINDOW_WIDTH / 2 - textFieldLength / 2;
+        int textFieldX = GameConfig.WINDOW_WIDTH / 2 - textFieldLength / 2;
         g2.drawRect(textFieldX, 360, textFieldLength, tileSize);
         g2.drawString(message.getMessage(), textFieldX + 5, 360 + tileSize - 7);
     }
@@ -266,15 +268,15 @@ public class Drawer {
     private void drawPoints(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont06);
-        g2.drawString("Points", tileSize, (int) (cfg.WINDOW_HEIGHT - tileSize * 1.2));
-        g2.drawString(String.valueOf(pacman.points), (int) (tileSize * 2), (int) (cfg.WINDOW_HEIGHT - tileSize * 0.3));
+        g2.drawString("Points", tileSize, (int) (GameConfig.WINDOW_HEIGHT - tileSize * 1.2));
+        g2.drawString(String.valueOf(pacman.points), (int) (tileSize * 2), (int) (GameConfig.WINDOW_HEIGHT - tileSize * 0.3));
     } 
 
     private void drawPacmanLife(Graphics2D g2) {
         g2.setColor(Color.yellow);
         for (int i = 0; i < pacman.life; i++) {
             g2.fillArc(tileSize * (6 + i * 2), 
-                       (int) (cfg.WINDOW_HEIGHT - tileSize * 1.8), 
+                       (int) (GameConfig.WINDOW_HEIGHT - tileSize * 1.8), 
                        (int) (tileSize * 1.6), 
                        (int) (tileSize * 1.6), 
                        45, 270);

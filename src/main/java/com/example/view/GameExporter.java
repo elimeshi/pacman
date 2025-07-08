@@ -15,6 +15,8 @@ import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 
+import com.example.config.GameConfig;
+
 public class GameExporter extends SwingWorker<Void, Void> {
 
     GameLoop gameLoop;
@@ -32,7 +34,7 @@ public class GameExporter extends SwingWorker<Void, Void> {
                 GameLoop.frame++;
 
                 if (GameLoop.frame % 3 == 0) {
-                    BufferedImage image = new BufferedImage(gameLoop.cfg.WINDOW_WIDTH, gameLoop.cfg.WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
+                    BufferedImage image = new BufferedImage(GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
                     Graphics2D g2 = (Graphics2D) image.getGraphics();
                     gameLoop.drawer.drawGame(g2);
                     g2.dispose();

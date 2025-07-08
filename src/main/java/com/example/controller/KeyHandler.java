@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import com.example.model.entity.Pacman;
+import com.example.utils.SoundManager;
 import com.example.view.GameLoop;
 import com.example.view.GameState;
 
@@ -20,6 +21,10 @@ public class KeyHandler implements KeyListener {
         this.gameLoop = gameLoop;
     }
 
+    public boolean isValidInput(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ' ';
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {}
 
@@ -34,15 +39,15 @@ public class KeyHandler implements KeyListener {
                         gameLoop.savedGameMenuOptions.length + 1;
             switch (code) {
                 case KeyEvent.VK_UP:
-                    gameLoop.soundManager.play("pick");
+                    SoundManager.getInstance().play("pick");
                     gameLoop.commandNum = (gameLoop.commandNum + num - 1) % num;
                     break;
                 case KeyEvent.VK_DOWN:
-                    gameLoop.soundManager.play("pick");
+                    SoundManager.getInstance().play("pick");
                     gameLoop.commandNum = (gameLoop.commandNum + num + 1) % num;
                     break;
                 case KeyEvent.VK_ENTER:
-                    gameLoop.soundManager.play("pick");
+                    SoundManager.getInstance().play("pick");
                     gameLoop.runMenuCommand();
                     break;
             }
@@ -59,15 +64,14 @@ public class KeyHandler implements KeyListener {
         } else if (gameLoop.gameState == GameState.UPDATE_LEADERBOARDS || gameLoop.gameState == GameState.SAVE_GAME || gameLoop.gameState == GameState.RENAME_SAVED_GAME) {
             if (code == KeyEvent.VK_BACK_SPACE) { gameLoop.message.deleteInputMessage(); return; }
             char c = e.getKeyChar();
-            if(Character.isLetterOrDigit(c) || c == ' ') gameLoop.message.writeInputMessage(String.valueOf(e.getKeyChar()));
+            if(isValidInput(c)) gameLoop.message.writeInputMessage(String.valueOf(c));
             else if (code == KeyEvent.VK_ENTER) gameLoop.saveInput();
         } else if (gameLoop.gameState == GameState.LEADERBOARDS) {
             if (code == KeyEvent.VK_ENTER) {
-                gameLoop.soundManager.play("pick");
+                SoundManager.getInstance().play("pick");
                 gameLoop.closeLeaderboards();
             } 
         }
-        
     }
 
     @Override

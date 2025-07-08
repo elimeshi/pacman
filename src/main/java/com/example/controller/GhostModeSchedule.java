@@ -8,16 +8,26 @@ import java.util.Map.Entry;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.utils.AssetLoader;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GhostModeSchedule {
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = AssetLoader.loadJSON("Ghost_mode_schedule_config").get("1");
-    Queue<GhostMode> modes = new LinkedList<>();
-    Queue<Integer> durations = new LinkedList<>();
-    int frightenedDuration, inPenAfterEatenDuration;
+    private static GhostModeSchedule instance = null;
 
-    public GhostModeSchedule() {
+    private JsonNode cfg;
+    public Queue<GhostMode> modes = new LinkedList<>();
+    public Queue<Integer> durations = new LinkedList<>();
+    public int frightenedDuration, inPenAfterEatenDuration;
+
+    private GhostModeSchedule() { cfg = AssetLoader.loadJSON("Ghost_mode_schedule_config"); }
+
+    public static GhostModeSchedule getInstance() {
+        if (instance == null) instance = new GhostModeSchedule();
+        return instance;
+    }
+
+    public void loadModeSchedule(int level) {
+        modes.clear();
+        durations.clear();
+        JsonNode node = cfg.get("level" + level);
         for (JsonNode item : node.get("modeSchedule")) {
             Iterator<Entry<String, JsonNode>> fields = item.fields();
             while (fields.hasNext()) {
@@ -28,5 +38,5 @@ public class GhostModeSchedule {
         }
         frightenedDuration = node.get("frightenedDuration").asInt();
         inPenAfterEatenDuration = node.get("inPenAfterEatenDuration").asInt();
-    } 
+    }
 }

@@ -7,14 +7,13 @@ import com.example.model.entity.enemy.Clyde;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.tile.TileMap;
-import com.example.utils.SoundManager;
 
 public class ClydeController extends GhostController {
 
     Ghost clyde;
 
-    public ClydeController(Clyde clyde, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
-        super(clyde, pacman, ai, FPS, tileMap, soundManager);
+    public ClydeController(Clyde clyde, Pacman pacman, AI ai, TileMap tileMap) {
+        super(clyde, pacman, ai, tileMap);
         this.clyde = clyde;
         scatterTile = new Point2D.Double(0, 31);
     }

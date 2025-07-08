@@ -1,8 +1,10 @@
 package com.example.controller;
 
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 import java.util.Queue;
 
+import com.example.config.GameConfig;
 import com.example.model.Speeds;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
@@ -16,13 +18,10 @@ public abstract class GhostController extends EntityController {
     Ghost ghost;
     Pacman pacman;
     AI ai;
-    GhostModeSchedule profile;
     Queue<GhostMode> modes;
     Queue<Integer> durations;
     GhostMode currentMode;
     boolean restarted;
-    SoundManager soundManager;
-    int FPS;
     int modeDuration;
     int modeCounter;
     int frightenedDuration;
@@ -32,24 +31,20 @@ public abstract class GhostController extends EntityController {
     Point2D.Double scatterTile;
     Point2D.Double ghostPenGate;
 
-    public GhostController(Ghost ghost, Pacman pacman, AI ai, int FPS, TileMap tileMap, SoundManager soundManager) {
+    public GhostController(Ghost ghost, Pacman pacman, AI ai, TileMap tileMap) {
         super(ghost, tileMap);
         this.ghost = ghost;
         this.pacman = pacman;
         this.ai = ai;
-        this.FPS = FPS;
         this.ghostPenGate = new Point2D.Double(13, 11);
-        this.soundManager = soundManager;
-        initialize();
     }
 
     public void initialize() {
         ghost.initialize();
-        profile = new GhostModeSchedule();
-        modes = profile.modes;
-        durations = profile.durations;
-        frightenedDuration = profile.frightenedDuration * FPS;
-        inPenDuration = profile.inPenAfterEatenDuration * FPS;
+        modes =                 new LinkedList<>(GhostModeSchedule.getInstance().modes);
+        durations =             new LinkedList<>(GhostModeSchedule.getInstance().durations);
+        frightenedDuration =    GhostModeSchedule.getInstance().frightenedDuration * GameConfig.FPS;
+        inPenDuration =         GhostModeSchedule.getInstance().inPenAfterEatenDuration * GameConfig.FPS;
         frightenedCounter = -1;
         inPenCounter = -1;
         currentMode = null;
@@ -108,7 +103,7 @@ public abstract class GhostController extends EntityController {
         if (++frightenedCounter >= frightenedDuration) {
             ghost.setFrightenedOff();
             ghost.setSpeed(Speeds.ghostNormal);
-        } else if (frightenedDuration - frightenedCounter <= 2 * FPS) {
+        } else if (frightenedDuration - frightenedCounter <= 2 * GameConfig.FPS) {
             ghost.frightenedIsOver = true;
         } 
     }
@@ -118,7 +113,7 @@ public abstract class GhostController extends EntityController {
             ghost.setMode(currentMode); return;
         }
         if (collisionWithPacman()) {
-            soundManager.play("ghost eaten");
+            SoundManager.getInstance().play("ghost eaten");
             ghost.setFrightenedOff();
             pacman.addPoints(200);
             ghost.setMode(GhostMode.Eaten);
@@ -219,7 +214,7 @@ public abstract class GhostController extends EntityController {
     public void getNextMode() {
         if (modes.isEmpty()) return;
         currentMode = modes.poll();
-        modeDuration = durations.poll() * FPS;
+        modeDuration = durations.poll() * GameConfig.FPS;
         modeCounter = 0;
     }
 

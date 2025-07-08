@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import com.example.config.GameConfig;
 import com.example.model.entity.Pacman;
 import com.example.model.fruit.Fruit;
 import com.example.model.fruit.FruitType;
@@ -19,20 +20,16 @@ public class FruitController {
 
     public Pacman pacman;
     public Fruit fruit;
-    public int fps;
     public int timerTarget;
     public int timer;
     public double totalWeight;
     public List<int[]> fruitPositions = new ArrayList<>();
     public TileMap tileMap;
-    public SoundManager soundManager;
 
-    public FruitController(Fruit fruit, Pacman pacman, int fps, TileMap tileMap, SoundManager soundManager) {
+    public FruitController(Fruit fruit, Pacman pacman, TileMap tileMap) {
         this.fruit = fruit;
         this.pacman = pacman;
-        this.fps = fps;
         this.tileMap = tileMap;
-        this.soundManager = soundManager;
 
         totalWeight = 0;
         for (FruitType type : FruitType.values()) totalWeight += type.getWeight();
@@ -86,11 +83,11 @@ public class FruitController {
     }
 
     public int getDuration(FruitType type) {
-        return (int) (fps * (7 - type.getPoints() / 300.0));
+        return (int) (GameConfig.FPS * (7 - type.getPoints() / 300.0));
     }
 
     public void setTimerForNextFruit() {
-        timerTarget = GameLoop.nextInt(10) + 5 * fps;
+        timerTarget = GameLoop.nextInt(10) + 5 * GameConfig.FPS;
         timer = 0;
     }
 
@@ -109,7 +106,7 @@ public class FruitController {
     public void eatFruit() {
         removeFruit();
         pacman.addPoints(fruit.type.getPoints());
-        soundManager.play("fruit eaten");
+        SoundManager.getInstance().play("fruit eaten");
     }
 
     public boolean collisionWithPacman() {

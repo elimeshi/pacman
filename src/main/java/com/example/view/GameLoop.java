@@ -27,7 +27,6 @@ import com.example.utils.SoundManager;
 
 public class GameLoop {
 
-    GameConfig cfg;
     public boolean debugMode = false;
     public PrintWriter debugLog;
     public GameState gameState;
@@ -64,21 +63,18 @@ public class GameLoop {
 
     public static int frame;
     public GameLogger gameLogger;
-    public SoundManager soundManager;
 
-    public GameLoop(GameConfig cfg, KeyHandler keyH) {
-        this.cfg = cfg;
+    public GameLoop(KeyHandler keyH) {
         this.keyH = keyH;
-        this.tileSize = cfg.tileSize;
+        this.tileSize = GameConfig.tileSize;
         level = 1;
-        Speeds.setSpeeds(cfg.FPS);
+        Speeds.setSpeeds(GameConfig.FPS);
         gameState = GameState.MENU;
         message = new Message();
         scale = tileSize / 3;
         tileMap = new TileMap();
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
-        soundManager = new SoundManager();
-        soundManager.play("pick");
+        SoundManager.getInstance().play("pick");
         keyH.setPacman(pacman);
         keyH.setGameLoop(this);
         ghosts = new Ghost[]{
@@ -90,12 +86,18 @@ public class GameLoop {
         ai = new AI(pacman, (Blinky) ghosts[0], tileMap);
         fruit = new Fruit();
         
-        controller = new GameController(pacman, ghosts, ai, fruit, tileMap, cfg.FPS, soundManager);
-        drawer = new Drawer(cfg, tileMap, pacman, ghosts, fruit, message, scale);
+        controller = new GameController(pacman, ghosts, ai, fruit, tileMap);
+        drawer = new Drawer(tileMap, pacman, ghosts, fruit, message, scale);
         
         gameLogger = new GameLogger();
         gameLogger.LoadLeaderboards();
         loadSavedGames();
+
+        // TreeMap<Integer, String> l = gameLogger.getLeaderboards();
+        // System.out.println(l);
+        // l.remove(12460);
+        // gameLogger.saveLeaderboards();
+        // gameLogger.LoadLeaderboards();
     }
 
     public static int nextInt(int bound) {
@@ -170,7 +172,7 @@ public class GameLoop {
 
         invalidInput = false;
         TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
-        leaderboards.put(pacman.points, message.getMessage());
+        leaderboards.put(pacman.points, message.getMessage().trim());
         if (leaderboards.size() > 10) leaderboards.remove(leaderboards.firstKey());
         gameLogger.saveLeaderboards();
         gameState = GameState.LEADERBOARDS;
@@ -178,7 +180,7 @@ public class GameLoop {
     }
 
     public void closeLeaderboards() {
-        if (!(message.getMessage().equals(Message.GAME_OVER) || message.getMessage().equals(Message.VICTORY))) gameState = GameState.MENU;
+        if (gameLogger.getSeed() == 0) gameState = GameState.MENU;
         else gameState = GameState.SAVE_GAME;
     }
 
@@ -194,7 +196,7 @@ public class GameLoop {
     }
 
     public void saveGame() {
-        if (!message.getMessage().isBlank()) gameLogger.saveGame(message.getMessage());
+        gameLogger.saveGame(message.getMessage());
         gameState = GameState.MENU;
     }
 
@@ -250,7 +252,7 @@ public class GameLoop {
         if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
         level = 1;
         frame = 0;
-        startGamePauseFrames = 5 * cfg.FPS;
+        startGamePauseFrames = 5 * GameConfig.FPS;
         deathPauseFrames = 0;
         finishLevelPauseFrames = 0;
         gameOverPauseFrames = 0;
@@ -262,7 +264,7 @@ public class GameLoop {
         controller.initializeNewGame();
         gameState = GameState.RUN;
         message.setMessage("READY");
-        soundManager.play("pacman intro");
+        SoundManager.getInstance().play("pacman intro");
     }
 
     public synchronized void getInput() {
@@ -281,21 +283,23 @@ public class GameLoop {
             message.setMessage("VICTORY");
             return;
         }
-        startGamePauseFrames = 2 * cfg.FPS;
+        startGamePauseFrames = 2 * GameConfig.FPS;
         message.setMessage(Message.READY);
         pacman.life++;
         tileMap.loadMap(level);
         tileMap.loadTiles(level);
-        controller.initializeNextLevel();
+        controller.initializeNextLevel(level);
     }
 
     public void pauseGame() {
         if (gameState == GameState.RUN) {
             gameState = GameState.PAUSED;
             message.setMessage("PAUSED");
+            SoundManager.getInstance().pauseAll();
         } else if (gameState == GameState.PAUSED) {
             gameState = GameState.RUN;
             message.setMessage("EMPTY");
+            SoundManager.getInstance().continueAll();
         }
     }
 
@@ -305,7 +309,7 @@ public class GameLoop {
         if (startGamePauseFrames > 0) {
             if (--startGamePauseFrames <= 0) {
                 message.setMessage(Message.EMPTY);
-                soundManager.startBackground();
+                SoundManager.getInstance().startBackground();
             }
             return;
         }
@@ -316,9 +320,9 @@ public class GameLoop {
         } 
 
         if ((pacman.gameOver || controller.victory) && gameOverPauseFrames <= 0) {
-            soundManager.stop("background");
-            gameOverPauseFrames = 3 * cfg.FPS;
-            soundManager.play(controller.victory ? "victory" : "game over");
+            SoundManager.getInstance().stop("background");
+            gameOverPauseFrames = 3 * GameConfig.FPS;
+            SoundManager.getInstance().play(controller.victory ? "victory" : "game over");
             return;
         }
 
@@ -343,9 +347,9 @@ public class GameLoop {
         }
 
         if (pacman.deadNow) {
-            deathPauseFrames = cfg.FPS;
-            soundManager.stop("background");
-            soundManager.play("pacman death");
+            deathPauseFrames = GameConfig.FPS;
+            SoundManager.getInstance().stop("background");
+            SoundManager.getInstance().play("pacman death");
             pacman.deadNow = false;
         }
 
@@ -358,7 +362,7 @@ public class GameLoop {
 
         if (pacman.restarted) {
             message.setMessage(Message.READY);
-            startGamePauseFrames = cfg.FPS * 2;
+            startGamePauseFrames = GameConfig.FPS * 2;
             pacman.restarted = false;
             return;
         }
@@ -369,9 +373,9 @@ public class GameLoop {
             if (level == 3) {
                 nextLevel(); return;
             }
-            finishLevelPauseFrames = 2 * cfg.FPS;
-            soundManager.stop("background");
-            soundManager.play("levelup");
+            finishLevelPauseFrames = 2 * GameConfig.FPS;
+            SoundManager.getInstance().stop("background");
+            SoundManager.getInstance().play("levelup");
             controller.victory = false;
         }
     }

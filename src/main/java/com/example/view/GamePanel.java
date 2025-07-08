@@ -13,13 +13,12 @@ import com.example.controller.KeyHandler;
 
 public class GamePanel extends JPanel implements Runnable {
 
-    GameConfig cfg = new GameConfig();
     KeyHandler keyH = new KeyHandler();
-    GameLoop gameLoop = new GameLoop(cfg, keyH);
+    GameLoop gameLoop = new GameLoop(keyH);
     Thread gameThread;
 
     public GamePanel() {
-        this.setPreferredSize(new Dimension(cfg.WINDOW_WIDTH, cfg.WINDOW_HEIGHT));
+        this.setPreferredSize(new Dimension(GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
@@ -33,7 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
-        double drawInterval = 1000000000 / cfg.FPS;
+        double drawInterval = 1000000000 / GameConfig.FPS;
         double delta = 0;
         long currentTime, lastTime = System.nanoTime();
 
