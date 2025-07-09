@@ -53,5 +53,18 @@
         ],
         "frightenedDuration": 1,
         "inPenAfterEatenDuration": 1
+    }, 
+
+    "level4": {
+        "modeSchedule": [
+            {"Scatter": 5},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": 20},
+            {"Scatter": 5},
+            {"Chase": -1}
+        ],
+        "frightenedDuration": 1,
+        "inPenAfterEatenDuration": 1
     }
 }

@@ -35,7 +35,7 @@ public abstract class EntityController {
             case 180: nextTileCol -= 1; break; // left
         }
 
-        nextTileCol = (nextTileCol + 28) % 28;
+        nextTileCol = (nextTileCol + TileMap.getInstance().mapWidth()) % TileMap.getInstance().mapWidth();
 
         return TileMap.getInstance().getTileAt(nextTileRow, nextTileCol);
     }
@@ -49,7 +49,7 @@ public abstract class EntityController {
             case -90: y += speed; break; // down
             case 180: x -= speed; break; // left
         }
-        x = (x + 27) % 27;
+        x = (x + TileMap.getInstance().mapWidth()) % TileMap.getInstance().mapWidth();
 
         x = snapIfClose(x);
         y = snapIfClose(y);

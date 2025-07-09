@@ -1,6 +1,7 @@
 package com.example.view;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.attribute.FileTime;
@@ -53,6 +54,14 @@ public class GameLoop {
     public boolean setKeyMode = false;
     public final String[] menuOptions = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
     public final String[] savedGameMenuOptions = new String[]{"Play", "Rename", "Delete", "Export"};
+    public final String[][] keyManageMenuOptions = new String[][]{
+        new String[]{"Move up:", ""},
+        new String[]{"Move down:", ""},
+        new String[]{"Move right:", ""},
+        new String[]{"Move left:", ""},
+        new String[]{"Pause:", ""},
+        new String[]{"Reset to default"}
+    };
     public boolean invalidInput = false;
     public boolean replayMode = false;
     public boolean exportMode = false;
@@ -77,6 +86,7 @@ public class GameLoop {
         keyH.setPacman(pacman);
         keyH.setGameLoop(this);
         keyH.setDefaultControlKeys();
+        setControlKeyValues();
         ghosts = new Ghost[]{
             new Blinky(13.5, 11, Speeds.ghostNormal),
             new Pinky (13.5, 14, Speeds.ghostNormal),
@@ -122,7 +132,7 @@ public class GameLoop {
                     gameState = GameState.SAVED_GAMES;
                     break;
                 case 2:
-                    commandNum = 0;
+                    commandNum = 1;
                     gameState = GameState.MANAGE_CONTROL_KEYS;
                     break;
                 case 3:
@@ -152,18 +162,48 @@ public class GameLoop {
         } else if (gameState == GameState.MANAGE_CONTROL_KEYS) {
             switch (commandNum) {
                 case 0: gameState = GameState.MENU; commandNum = 1; break;
-                
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5: toggleSetKeyMode(); break;
+                case 6: resetControlKeys();
                 default: break;
             }
         }
     }
 
-    public void chooseControlKey() {
+    public void resetControlKeys() {
+        keyH.setMvUp(KeyEvent.VK_UP);
+        keyH.setMvDown(KeyEvent.VK_DOWN);
+        keyH.setMvRight(KeyEvent.VK_RIGHT);
+        keyH.setMvLeft(KeyEvent.VK_LEFT);
+        keyH.setPause(KeyEvent.VK_SPACE);
+        setControlKeyValues();
+    }
 
+    public void setControlKeyValues() {
+        keyManageMenuOptions[0][1] = KeyEvent.getKeyText(keyH.getMvUp());
+        keyManageMenuOptions[1][1] = KeyEvent.getKeyText(keyH.getMvDown());
+        keyManageMenuOptions[2][1] = KeyEvent.getKeyText(keyH.getMvRight());
+        keyManageMenuOptions[3][1] = KeyEvent.getKeyText(keyH.getMvLeft());
+        keyManageMenuOptions[4][1] = KeyEvent.getKeyText(keyH.getPause());
+    }
+
+    public void toggleSetKeyMode() {
+        if (setKeyMode) setKeyMode = false;
+        else setKeyMode = true;
     }
 
     public void setControlKey(int keyCode) {
-
+        switch (commandNum) {
+            case 1: keyH.setMvUp(keyCode);    keyManageMenuOptions[0][1] = KeyEvent.getKeyText(keyCode);   break;
+            case 2: keyH.setMvDown(keyCode);  keyManageMenuOptions[1][1] = KeyEvent.getKeyText(keyCode);   break;
+            case 3: keyH.setMvRight(keyCode); keyManageMenuOptions[2][1] = KeyEvent.getKeyText(keyCode);   break;
+            case 4: keyH.setMvLeft(keyCode);  keyManageMenuOptions[3][1] = KeyEvent.getKeyText(keyCode);   break;
+            case 5: keyH.setPause(keyCode);   keyManageMenuOptions[4][1] = KeyEvent.getKeyText(keyCode);   break;
+            default: break;
+        }
     }
 
     public void saveInput() {
@@ -264,7 +304,7 @@ public class GameLoop {
 
     public void startGame() {
         if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
-        level = 0;
+        level = 1;
         frame = 0;
         startGamePauseFrames = 5 * GameConfig.FPS;
         deathPauseFrames = 0;
@@ -414,6 +454,9 @@ public class GameLoop {
             case MENU:                  drawer.drawMenu(g2, menuOptions, commandNum);               break;
             case LEADERBOARDS:          drawer.drawLeaderboards(g2, gameLogger.getLeaderboards());  break;
             case UPDATE_LEADERBOARDS:   drawer.drawUpdateLeaderboards(g2, invalidInput);            break;
+            case MANAGE_CONTROL_KEYS:   drawer.drawControlKeysManager(g2, 
+                                            keyManageMenuOptions, 
+                                            commandNum, setKeyMode);                                            break;
             case SAVE_GAME:             drawer.drawSaveGame(g2);                                    break;
             case SAVED_GAMES:           drawer.drawSavedGames(g2, savedGames, commandNum);          break;
             case SAVED_GAME_MANAGER:    drawer.drawSavedGameManager(g2, 

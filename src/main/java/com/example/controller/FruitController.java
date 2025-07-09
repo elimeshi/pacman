@@ -64,7 +64,6 @@ public class FruitController {
                 q.add(np);
             }
         }
-        for (int[] a : fruitPositions) System.out.println(a[0] + " " + a[1]);
     }
 
     public void addPossiblePosition(int x, int y) {

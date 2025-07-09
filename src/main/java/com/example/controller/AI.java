@@ -70,7 +70,7 @@ public class AI {
                 tileX <= 16 && 
                 tileX >= 11 && 
                (tileY == 11 || 
-                (tileY == 23 && TileMap.getInstance().initialDots < 250))) 
+                (tileY == 23 && pacman.regenPos.y == 23))) 
                     continue; // skip going up in the forbidden intersections 
 
             int new_x = (int) tileX + DIR_OFFSETS[i][1];

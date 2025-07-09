@@ -72,7 +72,7 @@ public class KeyHandler implements KeyListener {
             else if (code == mv_left) gameLoop.pendingDirection = 180;
             else if (code == pause) gameLoop.pauseGame();
         } else if (gameLoop.gameState == GameState.PAUSED) {
-            if (code == KeyEvent.VK_SPACE) gameLoop.pauseGame();
+            if (code == pause) gameLoop.pauseGame();
         } else if (gameLoop.gameState == GameState.UPDATE_LEADERBOARDS || gameLoop.gameState == GameState.SAVE_GAME || gameLoop.gameState == GameState.RENAME_SAVED_GAME) {
             if (code == KeyEvent.VK_BACK_SPACE) { gameLoop.message.deleteInputMessage(); return; }
             char c = e.getKeyChar();
@@ -84,14 +84,20 @@ public class KeyHandler implements KeyListener {
                 gameLoop.closeLeaderboards();
             } 
         } else if (gameLoop.gameState == GameState.MANAGE_CONTROL_KEYS) {
+            int num = gameLoop.keyManageMenuOptions.length + 1;
             if (code == KeyEvent.VK_ENTER) {
                 SoundManager.getInstance().play("pick");
-                gameLoop.chooseControlKey();
+                gameLoop.runMenuCommand();
             } else if (code == KeyEvent.VK_UP) {
-
+                SoundManager.getInstance().play("pick");
+                if (gameLoop.setKeyMode) gameLoop.setControlKey(code); else gameLoop.commandNum = (gameLoop.commandNum + num - 1) % num;
             } else if (code == KeyEvent.VK_DOWN) {
-                
-            } else gameLoop.setControlKey(code);
+                SoundManager.getInstance().play("pick");
+                if (gameLoop.setKeyMode) gameLoop.setControlKey(code); else gameLoop.commandNum = (gameLoop.commandNum + num + 1) % num;
+            } else if (gameLoop.setKeyMode) {
+                SoundManager.getInstance().play("pick");
+                gameLoop.setControlKey(code);
+            } 
         }
     }
 

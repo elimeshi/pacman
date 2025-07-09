@@ -50,6 +50,8 @@ public class Drawer {
         this.gameMapX = x;
     }
 
+    public void drawCenteredX(Graphics2D g2, String text, int y) { g2.drawString(text, getXForCenteredText(text, g2), y); }
+
     public int getXForCenteredText(String text, Graphics2D g2) {
         return (GameConfig.WINDOW_WIDTH - getTextLength(text, g2)) / 2;
     }
@@ -58,11 +60,18 @@ public class Drawer {
         return (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
     }
 
+    public void drawBackButton(Graphics2D g2, int commandNum) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(pacmanFont06);
+        g2.drawString("back", tileSize, tileSize);
+        if (commandNum == 0) g2.drawString(">", 0, tileSize);
+    }
+
     public void drawMenu(Graphics2D g2, String[] options, int commandNum) {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont3);
         String text = "Pacman";
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        drawCenteredX(g2, text, tileSize * 7);
 
         int x, y;
         g2.setFont(pacmanFont1);
@@ -80,13 +89,13 @@ public class Drawer {
         g2.setColor(Color.green);
         g2.setFont(pacmanFont1);
         String text = "Nice work!";
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        drawCenteredX(g2, text, 200);
         g2.setFont(pacmanFont06);
         text = "You just broke into the Top 10!";
-        g2.drawString(text, getXForCenteredText(text, g2), 250);
+        drawCenteredX(g2, text, 250);
         g2.setColor(Color.white);
         text = "Please enter your name:";
-        g2.drawString(text, getXForCenteredText(text, g2), 300);
+        drawCenteredX(g2, text, 300);
 
         int textFieldLength = 300;
         int textFieldX = GameConfig.WINDOW_WIDTH / 2 - textFieldLength / 2;
@@ -102,10 +111,11 @@ public class Drawer {
     }
 
     public void drawLeaderboards(Graphics2D g2, TreeMap<Integer, String> leaderboards) {
+        drawBackButton(g2, 0);
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont2);
         String text = "Leaderboards";
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        drawCenteredX(g2, text, tileSize * 7);
 
         int y = 400;
         g2.setFont(pacmanFont1);
@@ -118,19 +128,39 @@ public class Drawer {
         g2.drawLine(GameConfig.WINDOW_WIDTH / 2, 360, GameConfig.WINDOW_WIDTH / 2, y - 40);
     }
 
+    public void drawControlKeysManager(Graphics2D g2, String[][] options, int commandNum, boolean setKeyMode) {
+        drawBackButton(g2, commandNum);
+        g2.setColor(Color.WHITE);
+        g2.setFont(pacmanFont1);
+        String text = "Control keys manager";
+        drawCenteredX(g2, text, tileSize * 7);
+
+        int x1 = tileSize * 5, x2 = tileSize * 22, y = tileSize * 13;
+        g2.setFont(pacmanFont1);
+        for (int i = 1; i < options.length; i++) {
+            g2.drawString(options[i - 1][0], x1, y);
+            g2.drawString(options[i - 1][1], x2, y);
+            if (commandNum == i) g2.drawString(">", (setKeyMode ? x2 : x1) - tileSize * 2, y);
+            y += 3 * tileSize;
+        }
+        text = options[options.length - 1][0];
+        x1 = getXForCenteredText(text, g2);
+        g2.drawString(text, x1, y);
+        if (commandNum == options.length) g2.drawString(">", x1 - tileSize * 2, y);
+    }
+
     public void drawSaveGame(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont1);
         String text = "Do you want";
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        drawCenteredX(g2, text, 200);
         text = "to save the game?";
-        g2.drawString(text, getXForCenteredText(text, g2), 245);
+        drawCenteredX(g2, text, 245);
         g2.setFont(pacmanFont06);
         text = "If not, press enter.";
-        g2.drawString(text, getXForCenteredText(text, g2), 300);
-        g2.setColor(Color.white);
+        drawCenteredX(g2, text, tileSize * 10);
         text = "If yes, name your game:";
-        g2.drawString(text, getXForCenteredText(text, g2), 300 + tileSize);
+        drawCenteredX(g2, text, tileSize * 11);
 
         int textFieldLength = 300;
         int textFieldX = GameConfig.WINDOW_WIDTH / 2 - textFieldLength / 2;
@@ -141,14 +171,11 @@ public class Drawer {
     }
 
     public void drawSavedGames(Graphics2D g2, List<String[]> savedGames, int commandNum) {
+        drawBackButton(g2, commandNum);
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont2);
         String text = "Saved games";
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
-        g2.setFont(pacmanFont06);
-        g2.drawString("back", tileSize, tileSize);
-        
-        if (commandNum == 0) g2.drawString(">", 0, tileSize);
+        drawCenteredX(g2, text, tileSize * 7);
         
         int y = 400;
         int index = 0;
@@ -167,18 +194,16 @@ public class Drawer {
     }
 
     public void drawSavedGameManager(Graphics2D g2, String[] fileDetails, String[] options, int commandNum) {
+        drawBackButton(g2, commandNum);
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont1);
         String text = fileDetails[0];
-        g2.drawString(text, getXForCenteredText(text, g2), 200);
+        drawCenteredX(g2, text, 200);
         g2.setFont(pacmanFont04);
         for (int i = 1; i <= 2; i++) {
             text = fileDetails[i];
-            g2.drawString(text, getXForCenteredText(text, g2), 200 + 20 * i);
+            drawCenteredX(g2, text, 200 + 20 * i);
         }
-        g2.setFont(pacmanFont06);
-        g2.drawString("back", tileSize, tileSize);
-        if (commandNum == 0) g2.drawString(">", 0, tileSize);
         
         g2.setFont(pacmanFont1);
         int x, y;
@@ -196,7 +221,7 @@ public class Drawer {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont1);
         String text = "Rename your saved game:";
-        g2.drawString(text, getXForCenteredText(text, g2), 300);
+        drawCenteredX(g2, text, tileSize * 10);
 
         g2.setFont(pacmanFont06);
         int textFieldLength = 300;
@@ -209,7 +234,7 @@ public class Drawer {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont1);
         String text = "Exporting" + ".".repeat((frame / 10) % 3 + 1);
-        g2.drawString(text, getXForCenteredText("exporting", g2), 300);
+        drawCenteredX(g2, text, tileSize * 10);
     }
 
     private void drawTileMap(Graphics2D g2) {
