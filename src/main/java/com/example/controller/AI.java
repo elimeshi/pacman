@@ -19,7 +19,6 @@ public class AI {
     double tileX, tileY;
     int direction;
     GhostMode mode;
-    TileMap tileMap;
     Point2D.Double ghostPenGate;
 
     final int[] DIRECTIONS = {90, 180, -90, 0};
@@ -30,10 +29,9 @@ public class AI {
         {0, 1}   // Right
     };
 
-    public AI(Pacman pacman, Blinky blinky, TileMap tileMap) {
+    public AI(Pacman pacman, Blinky blinky) {
         this.pacman = pacman;
         this.blinky = blinky;
-        this.tileMap = tileMap;
         this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
@@ -60,7 +58,7 @@ public class AI {
         return 0; // fallback
     }
 
-    public int[] getPossibleDirections(TileMap tileMap) {
+    public int[] getPossibleDirections() {
         int reverse = getReverseDirection(direction);
         List<Integer> result = new ArrayList<>(3); // max 3 directions since reverse is excluded
 
@@ -72,14 +70,14 @@ public class AI {
                 tileX <= 16 && 
                 tileX >= 11 && 
                (tileY == 11 || 
-                tileY == 23)) 
+                (tileY == 23 && TileMap.getInstance().initialDots < 250))) 
                     continue; // skip going up in the forbidden intersections 
 
             int new_x = (int) tileX + DIR_OFFSETS[i][1];
             int new_y = (int) tileY + DIR_OFFSETS[i][0];
             new_x = (new_x + 28) % 28;
 
-            if (tileMap.getTileAt(new_y, new_x).type != TileType.Wall) 
+            if (TileMap.getInstance().getTileAt(new_y, new_x).type != TileType.Wall) 
                 result.add(dir);
         }
 
@@ -117,8 +115,8 @@ public class AI {
 
     public int getDirectionInPen(Ghost ghost) {
         updateGlobalVariables(ghost);
-        if (tileY <= 13.5) return -90; // move down
-        if (tileY >= 14.5) return  90; // move up
+        if (tileY <= TileMap.getInstance().ghostPenCenter().y - 0.5) return -90; // move down
+        if (tileY >= TileMap.getInstance().ghostPenCenter().y + 0.5) return  90; // move up
         return direction;
     }
 
@@ -129,14 +127,14 @@ public class AI {
 
     public int getDirectionToTarget(Ghost ghost, Point2D.Double target) {
         updateGlobalVariables(ghost);
-        int[] directions = getPossibleDirections(tileMap);
+        int[] directions = getPossibleDirections();
         return filterByTarget(directions, target)[0];
     }
 
     public int getDirectionIfFrightened(Ghost ghost) {
         if (ghost.isInPen() && ghost.mode != GhostMode.Frightened) return getDirectionInPen(ghost);
         updateGlobalVariables(ghost);
-        int[] directions = getPossibleDirections(tileMap);
+        int[] directions = getPossibleDirections();
         return directions[GameLoop.nextInt(directions.length)];
     }
 }

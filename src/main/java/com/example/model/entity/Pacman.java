@@ -1,5 +1,7 @@
 package com.example.model.entity;
 
+import java.awt.geom.Point2D;
+
 public class Pacman extends Entity {
 
     public int nextDirection;
@@ -18,6 +20,8 @@ public class Pacman extends Entity {
         nextDirection = 180;
     }
 
+    public void setRegenPos(double x, double y) { this.regenPos = new Point2D.Double(x, y); }
+
     public void initialize() {
         restart();
         life = 3;
@@ -31,8 +35,8 @@ public class Pacman extends Entity {
     }
 
     public void restart() {
-        x = 13.5;
-        y = 23;
+        x = regenPos.x;
+        y = regenPos.y;
         direction = 180;
         nextDirection = 180;
         mouthDegrees = 0;

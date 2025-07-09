@@ -19,7 +19,6 @@ public class Drawer {
 
     Pacman pacman;
     Ghost[] ghosts;
-    TileMap tileMap;
     Fruit fruit;
     Message message;
     Font pacmanFont1;
@@ -30,9 +29,9 @@ public class Drawer {
     Font pacmanFont04;
     int tileSize;
     int scale;
+    int gameMapX = 0;
 
-    public Drawer(TileMap tileMap, Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int scale) {
-        this.tileMap = tileMap;
+    public Drawer(Pacman pacman, Ghost[] ghosts, Fruit fruit, Message message, int scale) {
         this.pacman = pacman; 
         this.ghosts = ghosts;
         this.fruit = fruit;
@@ -45,6 +44,10 @@ public class Drawer {
         pacmanFont04 = pacmanFont1.deriveFont((float) (tileSize * 0.4));
         pacmanFont06 = pacmanFont1.deriveFont((float) (tileSize * 0.6));
         pacmanFont09 = pacmanFont1.deriveFont((float) (tileSize * 0.9));
+    }
+
+    public void updateGameMapX(int x) {
+        this.gameMapX = x;
     }
 
     public int getXForCenteredText(String text, Graphics2D g2) {
@@ -210,10 +213,10 @@ public class Drawer {
     }
 
     private void drawTileMap(Graphics2D g2) {
-        for (int i = 0; i < tileMap.mapHeight(); i++) {
-            for (int j = 0; j < tileMap.mapWidth(); j++) {
-                g2.drawImage(tileMap.getTileAt(i, j).image, 
-                             j * tileSize, 
+        for (int i = 0; i < TileMap.getInstance().mapHeight(); i++) {
+            for (int j = 0; j < TileMap.getInstance().mapWidth(); j++) {
+                g2.drawImage(TileMap.getInstance().getTileAt(i, j).image, 
+                             gameMapX + j * tileSize, 
                              i * tileSize, 
                              tileSize, 
                              tileSize, 
@@ -225,7 +228,7 @@ public class Drawer {
     private void drawFruit(Graphics2D g2) {
         if (fruit.isVisible)
         g2.drawImage(fruit.type.getImage(), 
-                     fruit.x * tileSize - scale, 
+                     gameMapX + (fruit.x * tileSize - scale), 
                      fruit.y * tileSize - scale, 
                      tileSize + scale * 2, 
                      tileSize + scale * 2, 
@@ -234,7 +237,7 @@ public class Drawer {
 
     private void drawPacman(Graphics2D g2) {
         g2.setColor(Color.YELLOW);
-        g2.fillArc((int) (pacman.x * tileSize - scale / 2), 
+        g2.fillArc((int) (pacman.x * tileSize - scale / 2) + gameMapX, 
                    (int) (pacman.y * tileSize - scale / 2), 
                    tileSize + scale, 
                    tileSize + scale, 
@@ -243,7 +246,7 @@ public class Drawer {
     }
 
     private void drawSprite(Graphics2D g2, BufferedImage img, double x, double y, int size, int scale) {
-        g2.drawImage(img, (int) (x * size - scale),
+        g2.drawImage(img, (int) (x * size - scale) + gameMapX,
                           (int) (y * size - scale),
                           size + scale * 2,
                           size + scale * 2,
@@ -268,22 +271,30 @@ public class Drawer {
     private void drawPoints(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(pacmanFont06);
-        g2.drawString("Points", tileSize, (int) (GameConfig.WINDOW_HEIGHT - tileSize * 1.2));
-        g2.drawString(String.valueOf(pacman.points), (int) (tileSize * 2), (int) (GameConfig.WINDOW_HEIGHT - tileSize * 0.3));
+        g2.drawString("Points", tileSize + gameMapX, (int) (TileMap.getInstance().mapPixelHeight() + tileSize * 0.8));
+        g2.drawString(String.valueOf(pacman.points), (int) (tileSize * 2) + gameMapX, (int) (TileMap.getInstance().mapPixelHeight() + tileSize * 1.7));
     } 
 
     private void drawPacmanLife(Graphics2D g2) {
         g2.setColor(Color.yellow);
         for (int i = 0; i < pacman.life; i++) {
-            g2.fillArc(tileSize * (6 + i * 2), 
-                       (int) (GameConfig.WINDOW_HEIGHT - tileSize * 1.8), 
+            g2.fillArc(tileSize * (6 + i * 2) + gameMapX, 
+                       (int) (TileMap.getInstance().mapPixelHeight() + tileSize * 0.2), 
                        (int) (tileSize * 1.6), 
                        (int) (tileSize * 1.6), 
                        45, 270);
         }
     }
+    
+    public void drawLevel(Graphics2D g2, int level) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(pacmanFont1);
+        g2.drawString("Level " + level, 
+                      gameMapX + (TileMap.getInstance().mapWidth() - 8) * tileSize, 
+                      (int) (TileMap.getInstance().mapPixelHeight() + tileSize * 1.5));
+    }
 
-    public void drawGame(Graphics2D g2) {
+    public void drawGame(Graphics2D g2, int level) {
         drawTileMap(g2);
         drawFruit(g2);
         drawPacman(g2);
@@ -291,5 +302,6 @@ public class Drawer {
         drawMessage(g2);
         drawPoints(g2);
         drawPacmanLife(g2);
+        drawLevel(g2, level);
     }
 }

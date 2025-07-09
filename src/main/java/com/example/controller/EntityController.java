@@ -9,11 +9,9 @@ public abstract class EntityController {
 
     public Entity entity;
     public double EPSILON = 1e-5;
-    public TileMap tileMap;
 
-    public EntityController(Entity entity, TileMap tileMap) {
+    public EntityController(Entity entity) {
         this.entity = entity;
-        this.tileMap = tileMap;
     }
 
     public boolean isOnTile() {
@@ -39,7 +37,7 @@ public abstract class EntityController {
 
         nextTileCol = (nextTileCol + 28) % 28;
 
-        return tileMap.getTileAt(nextTileRow, nextTileCol);
+        return TileMap.getInstance().getTileAt(nextTileRow, nextTileCol);
     }
 
     public void updatePosition() {

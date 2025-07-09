@@ -1,9 +1,12 @@
 package com.example.model.entity.enemy;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+import com.example.model.Speeds;
 import com.example.model.entity.Entity;
+import com.example.model.tile.TileMap;
 import com.example.utils.*;
 
 public class Ghost extends Entity {
@@ -13,11 +16,12 @@ public class Ghost extends Entity {
     public boolean frightenedIsOver = false;
     public int spriteIdx = 0;
     public int spriteCounter = 0;
-    public int frightenedCounter = 0;
     public int frightenedSpriteIdx = 0;
     public int frightenedSpriteCounter = 0;
-    public Point2D.Double regenPos; // regeneration position in pixels
     public BufferedImage sprite, eyes;
+
+    public Point penTopLeft, penBottomRight;
+    public Point2D.Double penCenter;
 
     public Ghost(double x, double y, double speed) {
         super(x, y, speed);
@@ -27,19 +31,51 @@ public class Ghost extends Entity {
     public void initialize() {
         restart();
         mode = GhostMode.InPen;
+        speed = Speeds.ghostNormal;
+        isFrightened = false;
         frightenedIsOver = false;
         spriteIdx = 0;
         spriteCounter = 0;
-        frightenedCounter = 0;
         frightenedSpriteIdx = 0;
         frightenedSpriteCounter = 0;
         direction = 90;
+        setSprite();
+
+        penTopLeft = TileMap.getInstance().ghostPenTopLeftCorner();
+        penBottomRight = TileMap.getInstance().ghostPenBottomRightCorner();
+        penCenter = TileMap.getInstance().ghostPenCenter();
     }
 
     public void restart() {
         x = regenPos.x;
         y = regenPos.y;
         direction = 90;
+    }
+
+    public boolean isInPen() {
+        return (x >= penTopLeft.x && 
+                x <= penBottomRight.x && 
+                y >= penTopLeft.y && 
+                y <= penBottomRight.y)
+                ||
+               (Math.abs(x - penCenter.x) <= 0.5 && 
+                y >= penTopLeft.y - 1 && y <= penBottomRight.y);
+    }
+
+    public boolean isOnPenTile() {
+        return isOnTileOffset(x, 0.5) &&
+               isOnTileOffset(y, 0);
+    }
+
+    public double snapToHalf(double pos) {
+        return Math.round(pos * 2) / 2.0;
+    }
+
+    @Override
+    public double snapIfClose(double pos) {
+        double threshold = speed / 2.0 + EPSILON;
+        double nearest = isInPen() ? snapToHalf(pos) : Math.round(pos);
+        return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 
     public void updateFrightenedSpriteIdx() {
@@ -62,7 +98,6 @@ public class Ghost extends Entity {
 
         String spritePath;
         if (isFrightened) {
-            frightenedCounter++;
             updateFrightenedSpriteIdx();
             spritePath = "ghosts/frightened" + frightenedSpriteIdx + spriteIdx + ".png";
         } else {
@@ -77,7 +112,6 @@ public class Ghost extends Entity {
         isFrightened = true;
         frightenedSpriteCounter = 30;
         frightenedSpriteIdx = 0;
-        frightenedCounter = 0;
         frightenedIsOver = false;
     }
 

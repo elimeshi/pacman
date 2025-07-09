@@ -9,8 +9,8 @@ public class PacmanController extends EntityController {
 
     public Pacman pacman;
 
-    public PacmanController(Pacman pacman, TileMap tileMap) {
-        super(pacman, tileMap);
+    public PacmanController(Pacman pacman) {
+        super(pacman);
         this.pacman = pacman;
     }
 
@@ -23,7 +23,7 @@ public class PacmanController extends EntityController {
 
     public TileType collectPellet() {
         int ix = (int) pacman.x, iy = (int) pacman.y;
-        Tile currentTile = tileMap.getTileAt(iy, ix);
+        Tile currentTile = TileMap.getInstance().getTileAt(iy, ix);
 
         switch (currentTile.type) {
             case Dot: pacman.addPoints(10); break;
@@ -31,7 +31,7 @@ public class PacmanController extends EntityController {
             default: break;
         }
 
-        tileMap.setTileAt(iy, ix, '≡');
+        TileMap.getInstance().setTileAt(iy, ix, '≡');
         return currentTile.type;
     }
 

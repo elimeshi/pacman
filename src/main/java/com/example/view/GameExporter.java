@@ -36,7 +36,7 @@ public class GameExporter extends SwingWorker<Void, Void> {
                 if (GameLoop.frame % 3 == 0) {
                     BufferedImage image = new BufferedImage(GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT, BufferedImage.TYPE_INT_RGB);
                     Graphics2D g2 = (Graphics2D) image.getGraphics();
-                    gameLoop.drawer.drawGame(g2);
+                    gameLoop.drawer.drawGame(g2, gameLoop.level);
                     g2.dispose();
                     try {
                         ImageIO.write(image, "png", new File(String.format("output/frame_%05d.png", GameLoop.frame / 3)));

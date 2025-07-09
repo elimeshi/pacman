@@ -12,7 +12,9 @@ import com.example.config.GameConfig;
 import com.example.model.entity.Pacman;
 import com.example.model.fruit.Fruit;
 import com.example.model.fruit.FruitType;
+import com.example.model.tile.Tile;
 import com.example.model.tile.TileMap;
+import com.example.model.tile.TileType;
 import com.example.utils.SoundManager;
 import com.example.view.GameLoop;
 
@@ -24,12 +26,10 @@ public class FruitController {
     public int timer;
     public double totalWeight;
     public List<int[]> fruitPositions = new ArrayList<>();
-    public TileMap tileMap;
 
-    public FruitController(Fruit fruit, Pacman pacman, TileMap tileMap) {
+    public FruitController(Fruit fruit, Pacman pacman) {
         this.fruit = fruit;
         this.pacman = pacman;
-        this.tileMap = tileMap;
 
         totalWeight = 0;
         for (FruitType type : FruitType.values()) totalWeight += type.getWeight();
@@ -46,28 +46,29 @@ public class FruitController {
         int[][] directions = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         Queue<int[]> q = new LinkedList<>();
         Set<Point> visited = new HashSet<>();
-        q.add(new int[]{13, 23});
+        q.add(new int[]{(int) pacman.regenPos.x, (int) pacman.regenPos.y});
         while (!q.isEmpty()) {
             int[] p = q.poll();
             for (int[] d : directions) {
                 int[] np = new int[]{p[0] + d[0], p[1] + d[1]};
-                if (np[0] < 0 || np[0] >= tileMap.map[0].length || np[1] < 0 || np[1] >= tileMap.map.length) continue;
+                if (np[0] < 0 || np[0] >= TileMap.getInstance().map[0].length || np[1] < 0 || np[1] >= TileMap.getInstance().map.length) continue;
                 
-                char nc = tileMap.map[np[1]][np[0]];
-                if (!(nc == '≡' || nc == '·')) continue;
+                Tile t = TileMap.getInstance().getTileAt(np[1], np[0]);
+                if (t.type == TileType.Wall) continue;
                 
                 Point newPoint = new Point(np[0], np[1]);
                 if (visited.contains(newPoint)) continue;
                 
-                if (nc == '≡') fruitPositions.add(np);
+                if (t.type == TileType.Empty) fruitPositions.add(np);
                 visited.add(newPoint);
                 q.add(np);
             }
         }
+        for (int[] a : fruitPositions) System.out.println(a[0] + " " + a[1]);
     }
 
-    public void addPossiblePosition(int[] pos) {
-        fruitPositions.add(pos);
+    public void addPossiblePosition(int x, int y) {
+        fruitPositions.add(new int[]{x, y});
     }
 
     public FruitType chooseRandomFruitType() {

@@ -1,4 +1,19 @@
 {
+    "level0": {
+        "modeSchedule": [
+            {"Scatter": 10},
+            {"Chase": 20},
+            {"Scatter": 10},
+            {"Chase": 20},
+            {"Scatter": 7},
+            {"Chase": 20},
+            {"Scatter": 7},
+            {"Chase": -1}
+        ],
+        "frightenedDuration": 6,
+        "inPenAfterEatenDuration": 6
+    },
+    
     "level1": {
         "modeSchedule": [
             {"Scatter": 7},

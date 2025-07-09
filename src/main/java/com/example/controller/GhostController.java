@@ -10,7 +10,6 @@ import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.entity.enemy.Pinky;
-import com.example.model.tile.TileMap;
 import com.example.utils.SoundManager;
 
 public abstract class GhostController extends EntityController {
@@ -31,8 +30,8 @@ public abstract class GhostController extends EntityController {
     Point2D.Double scatterTile;
     Point2D.Double ghostPenGate;
 
-    public GhostController(Ghost ghost, Pacman pacman, AI ai, TileMap tileMap) {
-        super(ghost, tileMap);
+    public GhostController(Ghost ghost, Pacman pacman, AI ai) {
+        super(ghost);
         this.ghost = ghost;
         this.pacman = pacman;
         this.ai = ai;
@@ -82,7 +81,7 @@ public abstract class GhostController extends EntityController {
 
     public void setFrightened() {
         if (ghost.mode == GhostMode.Eaten) return;
-        if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter) ghost.setMode(GhostMode.Frightened);
+        if (ghost.mode == GhostMode.Chase || ghost.mode == GhostMode.Scatter || ghost.mode == GhostMode.Elroy) ghost.setMode(GhostMode.Frightened);
         ghost.setFrightened();
         frightenedCounter = 0;
         ghost.setSpeed(Speeds.frightened);
@@ -235,7 +234,6 @@ public abstract class GhostController extends EntityController {
     }
 
     public void update() {
-        if (this instanceof BlinkyController) System.out.println(ghost.speed);
         killPacman();
         updateGhostMode();
         updateGhostDirection();

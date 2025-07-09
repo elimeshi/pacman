@@ -6,14 +6,13 @@ import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
 import com.example.model.entity.enemy.Pinky;
-import com.example.model.tile.TileMap;
 
 public class PinkyController extends GhostController {
 
     Ghost pinky;
 
-    public PinkyController(Pinky pinky, Pacman pacman, AI ai, TileMap tileMap) {
-        super(pinky, pacman, ai, tileMap);
+    public PinkyController(Pinky pinky, Pacman pacman, AI ai) {
+        super(pinky, pacman, ai);
         this.pinky = pinky;
         scatterTile = new Point2D.Double(2, -4);
     }

@@ -39,7 +39,6 @@ public class GameLoop {
     public int gameOverPauseFrames;
     int level;
     KeyHandler keyH;
-    TileMap tileMap;
     int tileSize;
     int scale;
     Pacman pacman;
@@ -51,6 +50,7 @@ public class GameLoop {
 
     public Message message;
     public int commandNum = 0;
+    public boolean setKeyMode = false;
     public final String[] menuOptions = new String[]{"New game", "Recorded games", "Manage control keys", "Leaderboards", "Quit"};
     public final String[] savedGameMenuOptions = new String[]{"Play", "Rename", "Delete", "Export"};
     public boolean invalidInput = false;
@@ -72,22 +72,22 @@ public class GameLoop {
         gameState = GameState.MENU;
         message = new Message();
         scale = tileSize / 3;
-        tileMap = new TileMap();
         pacman = new Pacman(13.5, 23.0, Speeds.pacman);
         SoundManager.getInstance().play("pick");
         keyH.setPacman(pacman);
         keyH.setGameLoop(this);
+        keyH.setDefaultControlKeys();
         ghosts = new Ghost[]{
             new Blinky(13.5, 11, Speeds.ghostNormal),
             new Pinky (13.5, 14, Speeds.ghostNormal),
             new Inky  (11.5, 14, Speeds.ghostNormal),
             new Clyde (15.5, 14, Speeds.ghostNormal)
         };
-        ai = new AI(pacman, (Blinky) ghosts[0], tileMap);
+        ai = new AI(pacman, (Blinky) ghosts[0]);
         fruit = new Fruit();
         
-        controller = new GameController(pacman, ghosts, ai, fruit, tileMap);
-        drawer = new Drawer(tileMap, pacman, ghosts, fruit, message, scale);
+        controller = new GameController(pacman, ghosts, ai, fruit);
+        drawer = new Drawer(pacman, ghosts, fruit, message, scale);
         
         gameLogger = new GameLogger();
         gameLogger.LoadLeaderboards();
@@ -102,13 +102,11 @@ public class GameLoop {
 
     public static int nextInt(int bound) {
         int result = random.nextInt(bound);
-        System.out.println("Frame " + frame + ", bound: " + bound + ", next int: " + result);
         return result;
     }
 
     public static double nextDouble() {
         double result = random.nextDouble();
-        System.out.println("Frame " + frame + ", next double: " + result);
         return result;
     }
 
@@ -124,6 +122,8 @@ public class GameLoop {
                     gameState = GameState.SAVED_GAMES;
                     break;
                 case 2:
+                    commandNum = 0;
+                    gameState = GameState.MANAGE_CONTROL_KEYS;
                     break;
                 case 3:
                     commandNum = 0;
@@ -149,7 +149,21 @@ public class GameLoop {
                 case 4: exportSavedGame(); break;
                 default: break;
             }
+        } else if (gameState == GameState.MANAGE_CONTROL_KEYS) {
+            switch (commandNum) {
+                case 0: gameState = GameState.MENU; commandNum = 1; break;
+                
+                default: break;
+            }
         }
+    }
+
+    public void chooseControlKey() {
+
+    }
+
+    public void setControlKey(int keyCode) {
+
     }
 
     public void saveInput() {
@@ -250,7 +264,7 @@ public class GameLoop {
 
     public void startGame() {
         if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
-        level = 1;
+        level = 0;
         frame = 0;
         startGamePauseFrames = 5 * GameConfig.FPS;
         deathPauseFrames = 0;
@@ -261,7 +275,8 @@ public class GameLoop {
             random = new Random(seed);
             gameLogger.startRecord(seed);
         }
-        controller.initializeNewGame();
+        controller.initializeNewGame(level);
+        drawer.updateGameMapX((GameConfig.WINDOW_WIDTH - TileMap.getInstance().mapWidth() * GameConfig.tileSize) / 2);
         gameState = GameState.RUN;
         message.setMessage("READY");
         SoundManager.getInstance().play("pacman intro");
@@ -286,8 +301,6 @@ public class GameLoop {
         startGamePauseFrames = 2 * GameConfig.FPS;
         message.setMessage(Message.READY);
         pacman.life++;
-        tileMap.loadMap(level);
-        tileMap.loadTiles(level);
         controller.initializeNextLevel(level);
     }
 
@@ -410,7 +423,7 @@ public class GameLoop {
             case RENAME_SAVED_GAME:     drawer.drawRenameSavedGame(g2);                             break;
             case WAIT_FOR_EXPORT:       drawer.drawWaitForExport(g2, frame);                        break;
             default:                    if (exportMode) drawer.drawWaitForExport(g2, frame);
-                                        else drawer.drawGame(g2);                                   break;
+                                        else drawer.drawGame(g2, level);                            break;
         }
     }
 }

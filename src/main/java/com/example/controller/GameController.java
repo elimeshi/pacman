@@ -14,47 +14,40 @@ public class GameController {
     public PacmanController pacmanController;
     public GhostController[] ghostControllers;
     public FruitController fruitController;
-    public TileMap tileMap;
     public TileType pacmanTile;
     public boolean victory = false;
-    public int initialDots = 30;
-    public int quarterDots = initialDots / 4;
+    public int level;
+    public int quarterDots;
     public int eatenDots = 0;
     public int ghostTimer = 0;
     public int[] blinkyElroyMode;
 
-    public GameController(Pacman pacman, Ghost[] ghosts, AI ai, Fruit fruit, TileMap tileMap) {
+    public GameController(Pacman pacman, Ghost[] ghosts, AI ai, Fruit fruit) {
         this.pacman = pacman;
-        this.tileMap = tileMap;
-        pacmanController = new PacmanController(pacman, tileMap);
+        pacmanController = new PacmanController(pacman);
         ghostControllers = new GhostController[]{
-            new BlinkyController((Blinky) ghosts[0], pacman, ai, tileMap),
-            new PinkyController((Pinky) ghosts[1], pacman, ai, tileMap),
-            new InkyController((Inky) ghosts[2], pacman, ai, tileMap),
-            new ClydeController((Clyde) ghosts[3], pacman, ai, tileMap),
+            new BlinkyController((Blinky) ghosts[0], pacman, ai),
+            new PinkyController((Pinky) ghosts[1], pacman, ai),
+            new InkyController((Inky) ghosts[2], pacman, ai),
+            new ClydeController((Clyde) ghosts[3], pacman, ai),
         };
-        fruitController = new FruitController(fruit, pacman, tileMap);
+        fruitController = new FruitController(fruit, pacman);
     }
 
-    public void initializeNewGame() {
+    public void initializeNewGame(int level) {
+        initializeNextLevel(level);
         pacman.initialize();
-        GhostModeSchedule.getInstance().loadModeSchedule(1);
-        blinkyElroyMode = GhostModeSchedule.getInstance().loadBlinkyConfig(1);
-        System.out.println(blinkyElroyMode[0] + " " + blinkyElroyMode[1]);
-        for (GhostController controller : ghostControllers) controller.initialize();
-        tileMap.loadLevel(1);
-        eatenDots = 0;
-        ghostTimer = 0;
-        fruitController.initialize();
-        victory = false;
     }
 
     public void initializeNextLevel(int level) {
+        pacman.setRegenPos(13.5, level == 0 ? 20 : 23);
+        TileMap.getInstance().loadLevel(level);
         pacman.restart();
         GhostModeSchedule.getInstance().loadModeSchedule(level);
         blinkyElroyMode = GhostModeSchedule.getInstance().loadBlinkyConfig(level);
         for (GhostController controller : ghostControllers) controller.initialize();
         fruitController.initialize();
+        quarterDots = TileMap.getInstance().initialDots / 4;
         eatenDots = 0;
         ghostTimer = 0;
         victory = false;
@@ -69,9 +62,10 @@ public class GameController {
     }
 
     public void updateBlinkyElroyMode() {
-        if (initialDots - eatenDots < blinkyElroyMode[1]) return;
-        if (initialDots - eatenDots <= blinkyElroyMode[1]) ghostControllers[0].upgradeElroyMode();
-        else if (initialDots - eatenDots <= blinkyElroyMode[0]) ghostControllers[0].setElroyMode();
+        int remainingDots = TileMap.getInstance().initialDots - eatenDots;
+        if (remainingDots < blinkyElroyMode[1]) return;
+        if (remainingDots <= blinkyElroyMode[1]) ghostControllers[0].upgradeElroyMode();
+        else if (remainingDots <= blinkyElroyMode[0]) ghostControllers[0].setElroyMode();
     }
 
     public void pacmanIsDead() {
@@ -90,7 +84,7 @@ public class GameController {
     }
 
     public void checkForLevelComplete() {
-        if (eatenDots >= initialDots) victory = true;
+        if (eatenDots >= TileMap.getInstance().initialDots) victory = true;
     }
 
     public void update() {
@@ -105,10 +99,10 @@ public class GameController {
         if (pacmanTile == TileType.Dot) {
             eatenDots++;
             SoundManager.getInstance().play("coin");
-            fruitController.addPossiblePosition(new int[]{(int) pacman.x, (int) pacman.y});
+            fruitController.addPossiblePosition((int) pacman.x, (int) pacman.y);
         } else if (pacmanTile == TileType.Energizer) {
             SoundManager.getInstance().play("energizer");
-            fruitController.addPossiblePosition(new int[]{(int) pacman.x, (int) pacman.y});
+            fruitController.addPossiblePosition((int) pacman.x, (int) pacman.y);
         }
         checkForLevelComplete();
         if (victory) return;
