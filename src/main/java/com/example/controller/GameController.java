@@ -36,12 +36,13 @@ public class GameController {
 
     public void initializeNewGame(int level) {
         initializeNextLevel(level);
+        ghostControllers[0].ai.setForbiddenUpIntersections(level);
         pacman.initialize();
     }
 
     public void initializeNextLevel(int level) {
-        pacman.setRegenPos(13.5, level == 0 ? 20 : 23);
         TileMap.getInstance().loadLevel(level);
+        pacman.setRegenPos(TileMap.getInstance().ghostPenCenter().x, level == 0 ? 20 : 23);
         pacman.restart();
         GhostModeSchedule.getInstance().loadModeSchedule(level);
         blinkyElroyMode = GhostModeSchedule.getInstance().loadBlinkyConfig(level);

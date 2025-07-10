@@ -7,6 +7,7 @@ import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Blinky;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
+import com.example.model.tile.TileMap;
 
 public class BlinkyController extends GhostController {
 
@@ -15,12 +16,12 @@ public class BlinkyController extends GhostController {
     public BlinkyController(Blinky blinky, Pacman pacman, AI ai) {
         super(blinky, pacman, ai);
         this.blinky = blinky;
-        scatterTile = new Point2D.Double(25, -4);
     }
 
     public void initialize() {
         super.initialize();
         getNextMode();
+        scatterTile = new Point2D.Double(TileMap.getInstance().mapWidth() - 2, -4);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +18,12 @@ public class AI {
     Pacman pacman;
     Blinky blinky;
     double tileX, tileY;
+    double centerX, centerY;
+    int mapWidth;
     int direction;
     GhostMode mode;
     Point2D.Double ghostPenGate;
+    List<Point> forbiddenIntersections; 
 
     final int[] DIRECTIONS = {90, 180, -90, 0};
     final int[][] DIR_OFFSETS = {
@@ -32,8 +36,20 @@ public class AI {
     public AI(Pacman pacman, Blinky blinky) {
         this.pacman = pacman;
         this.blinky = blinky;
-        this.ghostPenGate = new Point2D.Double(13, 11);
     }
+
+    public void setForbiddenUpIntersections(int level) {
+        mapWidth = TileMap.getInstance().mapWidth();
+        centerX = TileMap.getInstance().ghostPenCenter().x;
+        centerY = TileMap.getInstance().ghostPenCenter().y;
+        ghostPenGate = new Point2D.Double(centerX, 11);
+        forbiddenIntersections = new ArrayList<>();
+        forbiddenIntersections.add(new Point((int) (centerX - 1.5), 11));
+        forbiddenIntersections.add(new Point((int) (centerX + 1.5), 11));
+        if (level == 0) return;
+        forbiddenIntersections.add(new Point((int) (centerX - 1.5), 23));
+        forbiddenIntersections.add(new Point((int) (centerX + 1.5), 23));
+    }    
 
     public void updateGlobalVariables(Ghost ghost) {
         tileX = ghost.x;
@@ -66,16 +82,11 @@ public class AI {
             int dir = DIRECTIONS[i];
             if (dir == reverse) continue; // Skip reverse
 
-            if (dir == 90 && 
-                tileX <= 16 && 
-                tileX >= 11 && 
-               (tileY == 11 || 
-                (tileY == 23 && pacman.regenPos.y == 23))) 
-                    continue; // skip going up in the forbidden intersections 
+            if (dir == 90 && forbiddenIntersections.contains(new Point((int) tileX, (int) tileY))) continue; // skip going up in the forbidden intersections 
 
             int new_x = (int) tileX + DIR_OFFSETS[i][1];
             int new_y = (int) tileY + DIR_OFFSETS[i][0];
-            new_x = (new_x + 28) % 28;
+            new_x = (new_x + mapWidth) % mapWidth;
 
             if (TileMap.getInstance().getTileAt(new_y, new_x).type != TileType.Wall) 
                 result.add(dir);
@@ -115,13 +126,13 @@ public class AI {
 
     public int getDirectionInPen(Ghost ghost) {
         updateGlobalVariables(ghost);
-        if (tileY <= TileMap.getInstance().ghostPenCenter().y - 0.5) return -90; // move down
-        if (tileY >= TileMap.getInstance().ghostPenCenter().y + 0.5) return  90; // move up
+        if (tileY <= centerY - 0.5) return -90; // move down
+        if (tileY >= centerY + 0.5) return  90; // move up
         return direction;
     }
 
     public int getDirectionIfSpawn(Ghost ghost) {
-        if (ghost.x != 13.5) return ghost.x < 13.5 ? 0 : 180;
+        if (ghost.x != centerX) return ghost.x < centerX ? 0 : 180;
         return 90;
     }
 

@@ -29,6 +29,11 @@ public class Ghost extends Entity {
     }
 
     public void initialize() {
+        penTopLeft = TileMap.getInstance().ghostPenTopLeftCorner();
+        penBottomRight = TileMap.getInstance().ghostPenBottomRightCorner();
+        penCenter = TileMap.getInstance().ghostPenCenter();
+        
+        setRegenPos();
         restart();
         mode = GhostMode.InPen;
         speed = Speeds.ghostNormal;
@@ -40,10 +45,6 @@ public class Ghost extends Entity {
         frightenedSpriteCounter = 0;
         direction = 90;
         setSprite();
-
-        penTopLeft = TileMap.getInstance().ghostPenTopLeftCorner();
-        penBottomRight = TileMap.getInstance().ghostPenBottomRightCorner();
-        penCenter = TileMap.getInstance().ghostPenCenter();
     }
 
     public void restart() {
@@ -51,6 +52,8 @@ public class Ghost extends Entity {
         y = regenPos.y;
         direction = 90;
     }
+
+    public void setRegenPos() { regenPos = new Point2D.Double(penCenter.x, penCenter.y); }
 
     public boolean isInPen() {
         return (x >= penTopLeft.x && 

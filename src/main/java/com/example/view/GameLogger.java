@@ -22,7 +22,7 @@ public class GameLogger {
     private TreeMap<Integer, String> leaderboards = new TreeMap<>();
     private List<Entry<String, FileTime>> savedGames = new ArrayList<>();
     private List<GameFrame> gameFrames = new ArrayList<>();
-    private long randomSeed = 0;
+    private long randomSeed;
 
     public void startRecord(long seed) {
         randomSeed = seed;
@@ -33,9 +33,10 @@ public class GameLogger {
         gameFrames.add(new GameFrame(frame, pacmanInput));
     }
 
+    public void clearLogs() {gameFrames.clear();}
+
     public void saveGame(String fileName) {
-        randomSeed = 0;
-        if (fileName.isBlank()) return;
+        if (fileName.isBlank()) { gameFrames.clear(); return; }
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("saved games/" + fileName + ".ser"))) {
             oos.writeLong(randomSeed);
             oos.writeObject(gameFrames);

@@ -3,6 +3,7 @@ package com.example.controller;
 import java.awt.geom.Point2D;
 
 import com.example.model.entity.enemy.Inky;
+import com.example.model.tile.TileMap;
 import com.example.model.entity.Pacman;
 import com.example.model.entity.enemy.Ghost;
 import com.example.model.entity.enemy.GhostMode;
@@ -14,7 +15,11 @@ public class InkyController extends GhostController {
     public InkyController(Inky inky, Pacman pacman, AI ai) {
         super(inky, pacman, ai);
         this.inky = inky;
-        scatterTile = new Point2D.Double(27, 31);
+    }
+
+    public void initialize() {
+        super.initialize();
+        scatterTile = new Point2D.Double(TileMap.getInstance().mapWidth(), 31);
     }
 
     public Point2D.Double targetTile() {

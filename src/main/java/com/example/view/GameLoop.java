@@ -112,11 +112,13 @@ public class GameLoop {
 
     public static int nextInt(int bound) {
         int result = random.nextInt(bound);
+        System.out.println("frame: " + frame + " bound: " + bound + " nextInt:" + result);
         return result;
     }
 
     public static double nextDouble() {
         double result = random.nextDouble();
+        System.out.println("frame: " + frame + " nextDouble:" + result);
         return result;
     }
 
@@ -234,7 +236,7 @@ public class GameLoop {
     }
 
     public void closeLeaderboards() {
-        if (gameLogger.getSeed() == 0) gameState = GameState.MENU;
+        if (gameLogger.getLogs().isEmpty()) gameState = GameState.MENU;
         else gameState = GameState.SAVE_GAME;
     }
 
@@ -304,7 +306,7 @@ public class GameLoop {
 
     public void startGame() {
         if (debugMode) try {debugLog = new PrintWriter(new FileWriter(replayMode ? "debug_replay_mode.txt" : "debug_play_mode.txt", true)); } catch (Exception e) {e.printStackTrace();}
-        level = 1;
+        level = 0;
         frame = 0;
         startGamePauseFrames = 5 * GameConfig.FPS;
         deathPauseFrames = 0;
@@ -320,6 +322,7 @@ public class GameLoop {
         gameState = GameState.RUN;
         message.setMessage("READY");
         SoundManager.getInstance().play("pacman intro");
+        System.out.println(seed);
     }
 
     public synchronized void getInput() {
@@ -385,6 +388,7 @@ public class GameLoop {
                 TreeMap<Integer, String> leaderboards = gameLogger.getLeaderboards();
                 if (replayMode) { 
                     gameState = exportMode ? GameState.WAIT_FOR_EXPORT : GameState.SAVED_GAME_MANAGER; 
+                    gameLogger.clearLogs();
                     replayMode = false;
                     exportMode = false;
                     return;
@@ -436,8 +440,11 @@ public class GameLoop {
     public void debug() {
         if (debugMode) {
             debugLog.println("Frame: " + frame +", PacMan: (" + pacman.x + ", " + pacman.y + ")");
+            debugLog.println("Blinky(" + ghosts[0].x + ", " + ghosts[0].y + ")");
+            debugLog.println("Pinky(" + ghosts[1].x + ", " + ghosts[1].y + ")");
+            debugLog.println("Inky(" + ghosts[2].x + ", " + ghosts[2].y + ")");
+            debugLog.println("Clyde(" + ghosts[3].x + ", " + ghosts[3].y + ")");
             debugLog.println("Fruit: " + fruit.type);
-            debugLog.println("\n");
             debugLog.flush();
         } 
     }

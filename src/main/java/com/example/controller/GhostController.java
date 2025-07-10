@@ -35,11 +35,11 @@ public abstract class GhostController extends EntityController {
         this.ghost = ghost;
         this.pacman = pacman;
         this.ai = ai;
-        this.ghostPenGate = new Point2D.Double(13, 11);
     }
 
     public void initialize() {
         ghost.initialize();
+        ghostPenGate = new Point2D.Double(ghost.penCenter.x, 11);
         modes =                 new LinkedList<>(GhostModeSchedule.getInstance().modes);
         durations =             new LinkedList<>(GhostModeSchedule.getInstance().durations);
         frightenedDuration =    GhostModeSchedule.getInstance().frightenedDuration * GameConfig.FPS;
@@ -47,7 +47,7 @@ public abstract class GhostController extends EntityController {
         frightenedCounter = -1;
         inPenCounter = -1;
         currentMode = null;
-        restarted = false;
+        restarted = true;
     }
 
     public Point2D.Double getPacmanTile() {
@@ -58,14 +58,6 @@ public abstract class GhostController extends EntityController {
         if (ghost.mode == GhostMode.Scatter) return scatterTile;
         if (ghost.mode == GhostMode.Eaten) return ghostPenGate;
         return null;
-    }
-
-    public boolean isInPen() {
-        return (ghost.x >= 11 && ghost.x <= 16 && 
-                ghost.y >= 13 && ghost.y <= 15) 
-                ||
-               (ghost.x >= 13 && ghost.x <= 14 && 
-                ghost.y >= 11 && ghost.y <= 15);
     }
 
     public void restart() {
@@ -88,9 +80,9 @@ public abstract class GhostController extends EntityController {
     }
 
     public void getOutOfPen() {
-        if (currentMode != null && !restarted) return;
+        if (!restarted) return;
         restarted = false;
-        getNextMode();
+        if (currentMode == null) getNextMode();
         ghost.setMode(GhostMode.Spawn);
     }
 
@@ -127,7 +119,7 @@ public abstract class GhostController extends EntityController {
     }
 
     public void updateEatenMode() {
-        if (ghost.x == 13.5 && ghost.y == 11) {
+        if (ghost.x == ghostPenGate.x && ghost.y == 11) {
             ghost.setDirection(-90);
         } else if (ghost.y == ghost.regenPos.y && ghost.x == ghost.regenPos.x) {
             setInPen();
@@ -179,7 +171,7 @@ public abstract class GhostController extends EntityController {
                 ghost.setDirection(ai.getDirectionToTarget(ghost, targetTile()));
                 break;
             case Frightened:
-                if (!isOnTile() && !isInPen()) return;
+                if (!isOnTile() && !ghost.isInPen()) return;
                 ghost.setDirection(ai.getDirectionIfFrightened(ghost));
                 break;
             case Eaten:
@@ -229,7 +221,7 @@ public abstract class GhostController extends EntityController {
 
     public double snapIfClose(double pos) {
         double threshold = ghost.speed / 2.0 + EPSILON;
-        double nearest = isInPen() ? snapToHalf(pos) : Math.round(pos);
+        double nearest = ghost.isInPen() ? snapToHalf(pos) : Math.round(pos);
         return Math.abs(pos - nearest) <= threshold ? nearest : pos;
     }
 

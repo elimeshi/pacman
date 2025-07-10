@@ -135,7 +135,7 @@ public class Drawer {
         String text = "Control keys manager";
         drawCenteredX(g2, text, tileSize * 7);
 
-        int x1 = tileSize * 5, x2 = tileSize * 22, y = tileSize * 13;
+        int x1 = GameConfig.WINDOW_WIDTH / 2 - (10*tileSize), x2 = GameConfig.WINDOW_WIDTH / 2 + (5*tileSize), y = tileSize * 13;
         g2.setFont(pacmanFont1);
         for (int i = 1; i < options.length; i++) {
             g2.drawString(options[i - 1][0], x1, y);
